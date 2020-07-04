@@ -1,0 +1,45 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": ["plugin:vue/essential", "plugin:prettier/recommended"],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 11,
+    "sourceType": "module"
+  },
+  "plugins": ["vue"],
+  "rules": {
+    "prettier/prettier": "off",
+    "import/prefer-default-export": "off",
+    "prefer-const": 1,
+    "no-plusplus": 0, //允许使用++，--
+    "import/no-unresolved": 0 // 取消自动解析路径，以此开启alias的别名路径设置
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [
+          ["src", "./src"],
+          ["assets", "./src/assets"],
+          ["components", "./src/components"],
+          ["public", "./src/public"],
+          ["common", "./src/common"],
+          ["network", "./src/network"],
+          ["views", "./src/views"],
+          ["assets", "./src/assets"],
+          ["router", "./src/router"],
+          ["store", "./src/store"],
+          ["mock", "./src/mock"],
+          ["tests", "./src/tests"]
+        ]
+      }
+    }
+  }
+}
