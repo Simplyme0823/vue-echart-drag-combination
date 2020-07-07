@@ -1,0 +1,28 @@
+<!-- @format -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      var theThing = null;
+      var replaceThing = function() {
+        var originalThing = theThing;
+        var unused = function() {
+          if (originalThing) {
+            console.log("hello");
+          }
+        };
+        theThing = {
+          longStr: Date.now() + Array(1000000).join("*"),
+          someMethod: function() {},
+        };
+      };
+      setInterval(replaceThing, 10);
+    </script>
+  </body>
+</html>

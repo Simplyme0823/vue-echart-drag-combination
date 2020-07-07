@@ -16,7 +16,7 @@
     <div class="chart-title">
       <div v-show="currentTool==='title'">
         标题：
-        <el-input v-model="chartTitle"  style="width:400px"></el-input>
+        <el-input v-model="chartTitle" style="width:400px"></el-input>
         <el-input-number v-model="fontSize" :step="2" @change="chart" :min="min" :max="max"></el-input-number>
         <el-select v-model="fontWeight" @change="chart" style="width:120px">
           <el-option label="normal" value="normal">
@@ -30,10 +30,10 @@
         </el-select>
       </div>
       <div v-show="currentTool==='legend'">
-      <el-input ></el-input>
+        <el-input></el-input>
       </div>
       <div v-show="currentTool==='xAxis'">
-      <el-input ></el-input>
+        <el-input></el-input>
       </div>
       <div v-show="currentTool==='yAxis'">
         Max：<el-input v-model="yAxis.max"></el-input>
@@ -61,8 +61,8 @@
         </li>
       </ul>
 
-      <div style="border: 1px solid red;height: 900px; position: relative;margin-left: 152px;"
-        @mouseup="fangshou($event)" @mousemove="weituo($event)" @mouseenter="enterDesign($event)">
+      <div style="border: 1px solid red;height: 900px; position: relative;margin-left: 152px;" class="work-area"
+        ref="workArea" @mouseup="fangshou($event)" @mousemove="weituo($event)" @mouseenter="enterDesign($event)">
         <div style="position: relative;">
           <div class="corner" :style="{left: CRS.LT.left, top: CRS.LT.top}" ref="LT"></div>
           <div class="corner" :style="{left: CRS.RT.left, top: CRS.RT.top}" ref="RT"></div>
@@ -71,22 +71,31 @@
           </div>
           <div v-for="(item, index) in charts" :key="index"
             :style="{height: item.h, width: item.w, left: item.l, top: item.t}" :id="item.id" :ref="item.id"
-            class="test" @mouseenter="drag($event)" @mousedown="choose($event)" @mousemove="move($event)"
-            @mouseup="up($event)"></div>
+            class="test" @mouseenter="drag($event)" @mousedown="choose($event)" @mouseup="up($event)"></div>
         </div>
       </div>
     </div>
-      <el-drawer
-  title="我是标题"
-  :visible.sync="drawer"
-  >
-  <span>我来啦!</span>
-</el-drawer>
+    <el-drawer title="我是标题" :visible.sync="drawer">
+      <span>我来啦!</span>
+    </el-drawer>
   </div>
 </template>
 
 <script>
-  import echarts from "echarts";
+  import { YmsCharts } from "./demo.js"
+const charts = new YmsCharts("line")
+
+
+
+let orignData =  [
+  { "year": 2015, "mount": 11 },
+  { "year": 2016, "mount": 12 },            
+  { "year": 2015, "raido": 0.5 },
+  { "year": 2016, "raido": 0.6 }
+]
+
+
+
   let myChart;
   let activeDom;
   let activeDomLeft;
@@ -107,13 +116,13 @@
         activeCorner: undefined,
         chartTitle: "",
         currentTool: "title",
-        min:12,
-        drawer:false,
+        min: 12,
+        drawer: false,
         fontSize: 20,
-        max:40,
-        yAxis:{
-          max:100,
-          min:100
+        max: 40,
+        yAxis: {
+          max: 100,
+          min: 100
         },
         fontWeight: this.fontWeight,
         charts: [
@@ -152,9 +161,6 @@
       };
     },
     mounted() {
-      document.addEventListener("mousemove", e => {
-        this.weituo(e);
-      });
       document.addEventListener("keyup", e => {
         if (e.keyCode === 46) {
           if (activeDom) {
@@ -163,13 +169,14 @@
               cancelButtonText: '取消',
               type: 'warning'
             }).then(() => {
+              charts.dispose()
               this.charts = this.charts.filter(item => item.id !== activeDom.id)
-              myChart.dispose()
               this.$message({
                 type: 'success',
                 message: '删除成功!'
               });
-            }).catch(() => {
+            }).catch((err) => {
+              console.log(err)
               this.$message({
                 type: 'info',
                 message: '已取消删除'
@@ -178,23 +185,25 @@
           }
         }
       })
-
       this.chart();
     },
     methods: {
+      stop(e) {
+        if (e.target.className === 'work-erea') {
+          activeAdd = false
+        }
+      },
       changeTool(e) {
         this.currentTool = e.target.id
-        if(this.currentTool==="data"){
+        if (this.currentTool === "data") {
           this.drawer = true
           return
         }
-        if(this.currentTool==="download"){
-          
+        if (this.currentTool === "download") {
           return
         }
       },
       changTitle(e) {
-        console.log(this.charts)
         myChart.setOption({
           title: {
             text: this.chartTitle
@@ -203,7 +212,7 @@
       },
       tool(e) {
         console.log(e)
-        myChart.setOption({ legend: { show: false } })
+        myChart.setOption()
       },
       cancel(e) {
         activeAdd = false
@@ -211,7 +220,7 @@
       enterDesign(e) {
         if (!activeAdd) return
         const id = "chart" + Math.random()
-        this.newChart = { id, h: "100px", w: "100px", l: `${e.clientX - 200}px`, t: `${e.clientY - 150}px` }
+        this.newChart = { id, h: "300px", w: "300px", l: `${e.clientX - 200}px`, t: `${e.clientY - 150}px` }
         this.charts.push(this.newChart)
         activeAdd = true
         this.$nextTick(() => {
@@ -219,6 +228,8 @@
           activeDom.style.outline = "#0000FF dotted thin";
           activeDom.style.left = `${e.clientX - 200}px`
           activeDom.style.top = `${e.clientY - 200}px`
+          const line = new YmsCharts("line")
+          line.chart(activeDom)
         })
       },
       drag(e) {
@@ -248,9 +259,13 @@
         if (!target) return
         target.w = activeDom.style.width;
         target.h = activeDom.style.height;
-        myChart.resize({ width: "auto", height: "auto" });
+        charts.resize()
       },
       weituo(e) {
+        // echarts图形移动
+        this.move(e)
+        // 大小调整
+
         if (!this.crsShouldMove) return;
         const { crsDistanceX, crsDistanceY } = this;
         this.CRS.LB.top = this.CRS.RB.top = this.$refs.LB.style.top = activeCorner.style.top =
@@ -309,7 +324,7 @@
         const { offsetLeft, offsetTop } = activeDom
         const newTop = e.clientY - distanceY
         const newLeft = e.clientX - distanceX
-        const { w: width, h: height } = this.charts.find(item => item.id === e.currentTarget.id)
+        const { w: width, h: height } = this.charts.find(item => item.id === activeDom.id)
         const bottomBorder = newTop + parseInt(height)
         const rightBorder = newLeft + parseInt(width)
         if (newTop < 0 || bottomBorder > 900 || rightBorder > 1500) return
@@ -328,8 +343,8 @@
         this.charts[index].t = top
       },
       chart() {
-        myChart = echarts.init(document.getElementById("charts"));
-        myChart.setOption({
+        const el = document.getElementById("charts")
+        const options = {
           title: {
             text: "在Vue中使用echarts", left: "center", textStyle: {
               color: "black",
@@ -337,20 +352,53 @@
               fontSize: this.fontSize
             }
           },
-          legend: { bottom: 10 },
+          legend: {show:true,data:["mount",2015,2016]},
           tooltip: {},
-          xAxis: {
-            data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"],
-          },
+          xAxis: { type: 'category' },
           yAxis: {},
+          dataset: [
+            {source: [
+              { "year": 2015, "mount": 11 },
+              { "year": 2016, "mount": 12 },
+            ]}, 
+            {source: [
+            { "year": 2015, "raido": 0.5,"test":6 },
+            { "year": 2016, "raido": 0.6,"test":8 }
+          ]
+        }],
           series: [
             {
-              name: "销量",
-              type: "bar",
-              data: [5, 20, 36, 10, 10, 20],
+              type: 'line',
+              
+              datasetIndex:0,
+              name:"mount",
+              encode: {
+                y: 'mount',
+                x: 'year'
+              }
+            }, 
+            {
+              type: 'bar',
+              datasetIndex:1,
+              stack:"总量",
+              name:"raido",
+              encode: {
+                y: "raido",
+                x: "year"
+              }
             },
-          ],
-        });
+            {
+              type: 'bar',
+              datasetIndex:1,
+              stack:"总量",
+              name:"test",
+              encode: {
+                y: "test",
+                x: "year"
+              }
+            }],
+        }
+        charts.chart(el, options)
       },
     },
   };
@@ -420,15 +468,17 @@
     border: 1px solid gray
   }
 
-.tool-menu:after{
-        clear: both;
-        content: '';
-        display: block;
-        height: 0;
-    }
-.tool-menu{
-  margin-bottom: 10px;
-}
+  .tool-menu:after {
+    clear: both;
+    content: '';
+    display: block;
+    height: 0;
+  }
+
+  .tool-menu {
+    margin-bottom: 10px;
+  }
+
   .tool :nth-child(1) {
     background-image: url("../assets/pie_chart.svg");
   }
