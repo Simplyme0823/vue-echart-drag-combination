@@ -15,20 +15,84 @@
     </div>
     <div class="chart-title">
       <div v-show="currentTool==='title'">
-        标题：
-        <el-input v-model="chartTitle" style="width:400px"></el-input>
-        <el-input-number v-model="fontSize" :step="2" @change="chart" :min="min" :max="max"></el-input-number>
-        <el-select v-model="fontWeight" @change="chart" style="width:120px">
-          <el-option label="normal" value="normal">
-          </el-option>
-          <el-option label="bold" value="bold">
-          </el-option>
-          <el-option label='bolder' value='bolder'>
-          </el-option>
-          <el-option label='lighter' value='lighter'>
-          </el-option>
-        </el-select>
+        <el-form :inline="true">
+          <el-form-item label="标题">
+            <el-input v-model="title.text" style="width:400px"></el-input>
+          </el-form-item>
+          <el-form-item label="标题字号">
+            <el-input-number v-model="title.textStyle.fontSize" :step="2" @change="chart" :min="min" :max="max"></el-input-number>
+          </el-form-item>
+          <el-form-item label="标题字体粗细">
+            <el-select v-model="title.textStyle.fontWeight" @change="chart" style="width:120px">
+              <el-option label="normal" value="normal">
+              </el-option>
+              <el-option label="bold" value="bold">
+              </el-option>
+              <el-option label='bolder' value='bolder'>
+              </el-option>
+              <el-option label='lighter' value='lighter'>
+              </el-option>
+            </el-select>
+          </el-form-item>
+        <el-form-item label="标题位置">
+            <el-select v-model="title.left" @change="chart" style="width:120px">
+              </el-option>
+              <el-option label="left" value="left">
+              </el-option>
+              <el-option label='right' value='right'>
+              </el-option>
+              <el-option label='center' value='center'>
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
       </div>
+
+      <div v-show="currentTool==='grid'">
+        <el-form :inline="true">
+          <el-form-item label="上">
+            <el-input-number v-model="grid.top" :step="1"  :min="0" :max="50"></el-input-number>
+          </el-form-item>
+          <el-form-item label="下">
+            <el-input-number v-model="grid.bottom" :step="1"  :min="0" :max="50"></el-input-number>
+          </el-form-item>
+          <el-form-item label="左">
+            <el-input-number v-model="grid.left" :step="1"  :min="0" :max="50"></el-input-number>
+          </el-form-item>
+          <el-form-item label="右">
+            <el-input-number v-model="grid.right" :step="1"  :min="0" :max="50"></el-input-number>
+          </el-form-item>
+        </el-form>
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       <div v-show="currentTool==='legend'">
         <el-input></el-input>
       </div>
@@ -83,20 +147,8 @@
 
 <script>
   import { YmsCharts } from "./demo.js"
-const charts = new YmsCharts("line")
-
-
-
-let orignData =  [
-  { "year": 2015, "mount": 11 },
-  { "year": 2016, "mount": 12 },            
-  { "year": 2015, "raido": 0.5 },
-  { "year": 2016, "raido": 0.6 }
-]
-
-
-
-  let myChart;
+  const map ={}
+  let activeChart;
   let activeDom;
   let activeDomLeft;
   let activeDomTop;
@@ -114,20 +166,15 @@ let orignData =  [
         crsDistanceX: 0,
         crsDistanceY: 0,
         activeCorner: undefined,
-        chartTitle: "",
         currentTool: "title",
         min: 12,
         drawer: false,
-        fontSize: 20,
         max: 40,
         yAxis: {
           max: 100,
           min: 100
         },
-        fontWeight: this.fontWeight,
-        charts: [
-          { id: "charts", h: "300px", w: "500px", l: "100px", t: "200px", instance: undefined }
-        ],
+        charts: [],
         toollegends: [{ src: "../assets/legend.jpg" }, { src: "../assets/title.svg" }],
         newChart: "",
         CRS: {
@@ -158,6 +205,22 @@ let orignData =  [
           LB: "RT",
           RB: "LT",
         },
+        title:{
+          text:"在Vue中使用Eharts",
+          textStyle:{
+            color:'#333',
+            fontStyle:"normal",
+            fontWeight:"normal",
+            fontSize:18,
+          },
+          left:"center"
+        },
+        grid:{
+          left:'10%',
+          top:60,
+          right:"10%",
+          bottom:60
+        }
       };
     },
     mounted() {
@@ -185,7 +248,16 @@ let orignData =  [
           }
         }
       })
-      this.chart();
+    },
+    created(){
+      this.readConfig()
+    },
+    mounted(){
+          this.charts.forEach(item=>{
+            const ins = new YmsCharts("bar")
+            map[item.id] = ins
+             ins.chart(this.$refs[item.id][0])
+          })
     },
     methods: {
       stop(e) {
@@ -204,15 +276,10 @@ let orignData =  [
         }
       },
       changTitle(e) {
-        myChart.setOption({
-          title: {
-            text: this.chartTitle
-          }
-        })
+        map[activeDom.id].setOption({title:this.title})
       },
       tool(e) {
-        console.log(e)
-        myChart.setOption()
+        map[activeDom.id].setOption()
       },
       cancel(e) {
         activeAdd = false
@@ -222,6 +289,7 @@ let orignData =  [
         const id = "chart" + Math.random()
         this.newChart = { id, h: "300px", w: "300px", l: `${e.clientX - 200}px`, t: `${e.clientY - 150}px` }
         this.charts.push(this.newChart)
+
         activeAdd = true
         this.$nextTick(() => {
           activeDom = this.$refs[this.newChart.id][0]
@@ -229,6 +297,7 @@ let orignData =  [
           activeDom.style.left = `${e.clientX - 200}px`
           activeDom.style.top = `${e.clientY - 200}px`
           const line = new YmsCharts("line")
+          map[id] = line
           line.chart(activeDom)
         })
       },
@@ -259,7 +328,9 @@ let orignData =  [
         if (!target) return
         target.w = activeDom.style.width;
         target.h = activeDom.style.height;
-        charts.resize()
+        console.log(map)
+        map[activeDom.id].resize()
+        console.log(this.charts)
       },
       weituo(e) {
         // echarts图形移动
@@ -342,66 +413,21 @@ let orignData =  [
         this.charts[index].l = left
         this.charts[index].t = top
       },
-      chart() {
-        const el = document.getElementById("charts")
-        const options = {
-          title: {
-            text: "在Vue中使用echarts", left: "center", textStyle: {
-              color: "black",
-              fontWeight: this.fontWeight,
-              fontSize: this.fontSize
-            }
-          },
-          legend: {show:true,data:["mount",2015,2016]},
-          tooltip: {},
-          xAxis: { type: 'category' },
-          yAxis: {},
-          dataset: [
-            {source: [
-              { "year": 2015, "mount": 11 },
-              { "year": 2016, "mount": 12 },
-            ]}, 
-            {source: [
-            { "year": 2015, "raido": 0.5,"test":6 },
-            { "year": 2016, "raido": 0.6,"test":8 }
-          ]
-        }],
-          series: [
-            {
-              type: 'line',
-              
-              datasetIndex:0,
-              name:"mount",
-              encode: {
-                y: 'mount',
-                x: 'year'
-              }
-            }, 
-            {
-              type: 'bar',
-              datasetIndex:1,
-              stack:"总量",
-              name:"raido",
-              encode: {
-                y: "raido",
-                x: "year"
-              }
-            },
-            {
-              type: 'bar',
-              datasetIndex:1,
-              stack:"总量",
-              name:"test",
-              encode: {
-                y: "test",
-                x: "year"
-              }
-            }],
-        }
-        charts.chart(el, options)
+      chart(ops){
+        console.log(ops)
+        //map[activeDom.id].setOption({})
       },
-    },
-  };
+      readConfig(){
+        const config = [{h: "439px",
+        id: "chart0.6122708683743796",
+        l: "205px",
+        t: "191px",
+        w: "524px"}]
+
+        this.charts = config
+      }
+    }
+  }
 </script>
 
 <style scoped>

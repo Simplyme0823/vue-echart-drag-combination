@@ -1,5 +1,5 @@
 /** @format */
-
+import {merge} from "merge-anything";
 import * as echarts from "echarts/lib/echarts";
 
 import "echarts/lib/chart/pie";
@@ -110,7 +110,6 @@ export class YmsCharts {
   }
   chart(el, options = {}) {
     this.ins = echarts.init(el);
-    //合并配置
     this.mergeOpts(options);
     // 出图
     this.ins.setOption(this.options);
@@ -120,10 +119,17 @@ export class YmsCharts {
   }
   // 外部传入的
   mergeOpts(options) {
-    // this.options 操作
-    // this.options = options;
+    console.log(options);
+    this.options = merge(this.options, options);
   }
   dispose() {
     this.ins.dispose();
+  }
+
+  setOption(options) {
+    //合并配置
+    this.mergeOpts(options);
+    console.log(this.options);
+    this.ins.setOption(this.options);
   }
 }
