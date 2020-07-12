@@ -7,23 +7,23 @@
       <img class="tool" id="legend" src="../assets/legend.jpg" draggable="false" alt="legend" />
       <img class="tool" id="color" src="../assets/color.svg" draggable="false" alt="color" />
       <img class="tool" id="title" src="../assets/title.svg" draggable="false" alt="title" />
-      <img class="tool" id="x-axis" src="../assets/axis.svg" draggable="false" alt="x-axis" />
-      <img class="tool" id="y-axis" src="../assets/y-axis.svg" draggable="false" alt="y-axis" />
+      <img class="tool" id="XAxis" src="../assets/axis.svg" draggable="false" alt="x-axis" />
+      <img class="tool" id="YAxis" src="../assets/y-axis.svg" draggable="false" alt="y-axis" />
       <img class="tool" id="data" src="../assets/data.svg" draggable="false" alt="data" />
       <img class="tool" id="grid" src="../assets/grid.svg" draggable="false" alt="grid" />
       <img class="tool" id="download" src="../assets/download.svg" draggable="false" alt="download" />
+      <img class="tool" id="save" src="../assets/save.svg" draggable="false" alt="save" />
     </div>
-    <div class="chart-title">
-      <div v-show="currentTool==='title'">
-        <el-form :inline="true">
+    <div class="chart-title" >
+        <el-form :inline="true" v-show="currentTool==='title'">
           <el-form-item label="标题">
             <el-input v-model="title.text" style="width:400px"></el-input>
           </el-form-item>
           <el-form-item label="标题字号">
-            <el-input-number v-model="title.textStyle.fontSize" :step="2" @change="chart" :min="min" :max="max"></el-input-number>
+            <el-input-number v-model="title.textStyle.fontSize" :step="2"  :min="min" :max="max"></el-input-number>
           </el-form-item>
           <el-form-item label="标题字体粗细">
-            <el-select v-model="title.textStyle.fontWeight" @change="chart" style="width:120px">
+            <el-select v-model="title.textStyle.fontWeight"  style="width:120px">
               <el-option label="normal" value="normal">
               </el-option>
               <el-option label="bold" value="bold">
@@ -35,7 +35,7 @@
             </el-select>
           </el-form-item>
         <el-form-item label="标题位置">
-            <el-select v-model="title.left" @change="chart" style="width:120px">
+            <el-select v-model="title.left"  style="width:120px">
               </el-option>
               <el-option label="left" value="left">
               </el-option>
@@ -45,11 +45,12 @@
               </el-option>
             </el-select>
           </el-form-item>
+          <el-form-item>
+            <el-button @click="changeTitle">应用</el-button>
+          </el-form-item>
         </el-form>
-      </div>
 
-      <div v-show="currentTool==='grid'">
-        <el-form :inline="true">
+        <el-form :inline="true" v-show="currentTool==='grid'">
           <el-form-item label="上">
             <el-input-number v-model="grid.top" :step="1"  :min="0" :max="50"></el-input-number>
           </el-form-item>
@@ -62,48 +63,71 @@
           <el-form-item label="右">
             <el-input-number v-model="grid.right" :step="1"  :min="0" :max="50"></el-input-number>
           </el-form-item>
+          <el-form-item>
+            <el-button @click="changeGrid">应用</el-button>
+          </el-form-item>
         </el-form>
-      </div>
 
+          <el-form :inline="true" :model="yAxis" v-show="currentTool==='YAxis'">
+            <el-form-item label="显示" prop="show">
+              <el-switch v-model="yAxis.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            </el-form-item>
+            <el-form-item label="最大值" prop="max">
+              <el-input-number v-model="yAxis.max" :step="1"  :min="0" :max="50"></el-input-number>
+            </el-form-item>
+            <el-form-item label="最小值" prop="min">
+              <el-input-number v-model="yAxis.min" :step="1"  :min="0" :max="50"></el-input-number>
+            </el-form-item>
+            <el-form-item label="间距" prop="interval">
+              <el-input-number v-model="yAxis.interval" :step="1"  :min="0" :max="50"></el-input-number>
+            </el-form-item>
+            <el-form-item label="轴名称" prop="name">
+              <el-input v-model="yAxis.name"></el-input>
+            </el-form-item>
+            <el-form-item label="字号" prop="nameTextStyle.fontSize">
+              <el-input v-model="yAxis.nameTextStyle.fontSize" style="width:80px"></el-input>
+            </el-form-item>
+            <el-form-item label="粗细" prop="nameTextStyle.fontWeight">
+              <el-select v-model="yAxis.nameTextStyle.fontWeight" style="width:120px">
+                <el-option label="normal" value="normal">
+                </el-option>
+                <el-option label="bold" value="bold">
+                </el-option>
+                <el-option label='bolder' value='bolder'>
+                </el-option>
+                <el-option label='lighter' value='lighter'>
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="刻度大小" prop="axisLabel.fontSize">
+                <el-input v-model="yAxis.axisLabel.fontSize" style="width:80px"></el-input>
+            </el-form-item>
+            <el-form-item label="位置" prop="nameGap">
+              <el-input v-model="yAxis.nameGap" style="width:80px"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button @click="changeYAxis">应用</el-button>
+            </el-form-item>
+          </el-form>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          <el-form :inline="true" :model="xAxis" v-show="currentTool==='XAxis'">
+            <el-form-item label="显示" prop="show">
+              <el-switch v-model="xAxis.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            </el-form-item>
+            <el-form-item label="刻度大小" prop="axisLabel.fontSize">
+              <el-input v-model="xAxis.axisLabel.fontSize" style="width:80px"></el-input>
+            </el-form-item>
+            <el-form-item label="旋转" prop="axisLabel.rotate">
+              <el-input-number v-model="xAxis.axisLabel.rotate"></el-input-number>
+            </el-form-item>
+            <el-form-item>
+              <el-button @click="changeXAxis">应用</el-button>
+            </el-form-item>
+          </el-form>
 
       <div v-show="currentTool==='legend'">
         <el-input></el-input>
       </div>
-      <div v-show="currentTool==='xAxis'">
-        <el-input></el-input>
-      </div>
-      <div v-show="currentTool==='yAxis'">
-        Max：<el-input v-model="yAxis.max"></el-input>
-        Min：<el-input v-model="yAxis.max"></el-input>
-      </div>
-      <el-button @click="changTitle">确定</el-button>
     </div>
     <div style="position: relative;">
       <ul class="chart-menu" @mousedown="chooseType($event)" @mouseup="cancel($event)">
@@ -126,12 +150,14 @@
       </ul>
 
       <div style="border: 1px solid red;height: 900px; position: relative;margin-left: 152px;" class="work-area"
-        ref="workArea" @mouseup="fangshou($event)" @mousemove="weituo($event)" @mouseenter="enterDesign($event)">
+        ref="workArea" @mouseup="fangshou($event)" @mousemove="weituo($event)" @mouseenter="enterDesign($event)" @mousedown="control($event)">
         <div style="position: relative;">
-          <div class="corner" :style="{left: CRS.LT.left, top: CRS.LT.top}" ref="LT"></div>
-          <div class="corner" :style="{left: CRS.RT.left, top: CRS.RT.top}" ref="RT"></div>
-          <div class="corner" :style="{left: CRS.LB.left, top: CRS.LB.top}" ref="LB"></div>
-          <div class="corner" :style="{left: CRS.RB.left, top: CRS.RB.top}" @mousedown="crsChoose($event)" ref="RB">
+          <div class="mask" :class="{active:isActive}" :style="{height: activeItem.h, width: activeItem.w, left: activeItem.l, top: activeItem.t}" ref="mask">
+            <div class="corner" style="left:-4px; top:-4px" ref="LT"></div>
+            <div class="corner" :style="{left: CRS.RT.left, top: CRS.RT.top}" ref="RT"></div>
+            <div class="corner" :style="{left: CRS.LB.left, top: CRS.LB.top}" ref="LB"></div>
+            <div class="corner rb" :style="{left: CRS.RB.left, top: CRS.RB.top}" ref="RB" @mousedown="crsChoose($event)">
+          </div>
           </div>
           <div v-for="(item, index) in charts" :key="index"
             :style="{height: item.h, width: item.w, left: item.l, top: item.t}" :id="item.id" :ref="item.id"
@@ -147,14 +173,24 @@
 
 <script>
   import { YmsCharts } from "./demo.js"
+  import  * as html2canvas from "html2canvas"
+
+  const saveFile = function(data, filename){
+                var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+                save_link.href = data;
+                save_link.download = filename;
+                var event = document.createEvent('MouseEvents');
+                event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+                save_link.dispatchEvent(event);
+            };
+  // 保存作图实例
   const map ={}
-  let activeChart;
+
   let activeDom;
-  let activeDomLeft;
-  let activeDomTop;
   let activeAdd = false
-  let activeCorner;
+
   let typeList = ["line", "pie", "bar"]
+
   export default {
     name: "echarts",
     data() {
@@ -163,25 +199,17 @@
         crsShouldMove: false,
         distanceX: 0,
         distanceY: 0,
-        crsDistanceX: 0,
-        crsDistanceY: 0,
-        activeCorner: undefined,
         currentTool: "title",
+        activeItem:{h:0,w:0,l:0,t:0},
         min: 12,
         drawer: false,
         max: 40,
-        yAxis: {
-          max: 100,
-          min: 100
-        },
         charts: [],
-        toollegends: [{ src: "../assets/legend.jpg" }, { src: "../assets/title.svg" }],
         newChart: "",
+        oldPageX:"",
+        oldPageY:"",
+        isActive:true,
         CRS: {
-          LT: {
-            left: "",
-            top: "",
-          },
           RT: {
             left: "",
             top: "",
@@ -199,12 +227,6 @@
         w: "",
         l: "",
         t: "",
-        find: {
-          LT: "RB",
-          RT: "LB",
-          LB: "RT",
-          RB: "LT",
-        },
         title:{
           text:"在Vue中使用Eharts",
           textStyle:{
@@ -220,8 +242,27 @@
           top:60,
           right:"10%",
           bottom:60
+        },
+        yAxis:{
+          max:null,
+          min:null,
+          interval:null,
+          nameLocation:"middle",
+          name:"",
+          show:true,
+          nameTextStyle:{
+            fontSize:16,
+            fontWeight:"normal"
+          },
+          nameGap:20,
+          axisLabel: {fontSize:15}
+        },
+        xAxis:{
+          name:"",
+          show:true,
+          axisLabel: {fontSize:15, rotate:0}
         }
-      };
+      }
     },
     mounted() {
       document.addEventListener("keyup", e => {
@@ -272,17 +313,43 @@
           return
         }
         if (this.currentTool === "download") {
+          html2canvas(this.$refs.workArea).
+          then(canvas => {
+            var pageData = canvas.toDataURL('image/jpeg', 1.0);
+							saveFile(pageData.replace("image/jpeg", "image/octet-stream"),new Date().getTime()+".jpeg");
+          })
           return
         }
+        if(this.currentTool === "save"){
+          console.log(this.charts)
+        console.log(map)
+        this.charts
+        }
       },
-      changTitle(e) {
+      changeTitle(e) {
         map[activeDom.id].setOption({title:this.title})
+      },
+      changeYAxis(e){
+        map[activeDom.id].setOption({yAxis:this.yAxis})
+      },
+      changeXAxis(e){
+        map[activeDom.id].setOption({xAxis:this.xAxis})
+      },
+      changeGrid(e){
+        map[activeDom.id].setOption({grid:this.grid})
       },
       tool(e) {
         map[activeDom.id].setOption()
       },
       cancel(e) {
         activeAdd = false
+      },
+      control(e){
+        if(e.target === e.currentTarget){
+          this.isActive = true
+          return
+        }
+        this.isActive = false
       },
       enterDesign(e) {
         if (!activeAdd) return
@@ -293,9 +360,10 @@
         activeAdd = true
         this.$nextTick(() => {
           activeDom = this.$refs[this.newChart.id][0]
-          activeDom.style.outline = "#0000FF dotted thin";
           activeDom.style.left = `${e.clientX - 200}px`
           activeDom.style.top = `${e.clientY - 200}px`
+          this.activeItem.w = "300px"
+          this.activeItem.h = "300px"
           const line = new YmsCharts("line")
           map[id] = line
           line.chart(activeDom)
@@ -303,6 +371,7 @@
       },
       drag(e) {
         if (!activeAdd) return
+        this.isActive = false
         activeDom = this.$refs[this.newChart.id][0]
         const { h, l, w, t } = this.charts.find(
           item => item.id === activeDom.id,
@@ -312,7 +381,6 @@
         this.w = w;
         this.t = t;
         this.shouldMove = true;
-        activeDom.style.outline = "#0000FF dotted thin";
         const { offsetLeft, offsetTop } = activeDom;
         this.cornorsMoveControl(offsetLeft, offsetTop);
         this.distanceX = e.clientX - offsetLeft;
@@ -323,55 +391,44 @@
         activeAdd = true
       },
       fangshou(e) {
+        if(!activeDom) return
         this.crsShouldMove = false;
         const target = this.charts.find(item => item.id === activeDom.id);
         if (!target) return
         target.w = activeDom.style.width;
         target.h = activeDom.style.height;
-        console.log(map)
         map[activeDom.id].resize()
-        console.log(this.charts)
       },
       weituo(e) {
         // echarts图形移动
         this.move(e)
         // 大小调整
-
         if (!this.crsShouldMove) return;
-        const { crsDistanceX, crsDistanceY } = this;
-        this.CRS.LB.top = this.CRS.RB.top = this.$refs.LB.style.top = activeCorner.style.top =
-          e.clientY - crsDistanceY + "px";
-        this.CRS.RT.left = this.CRS.RB.left = this.$refs.RT.style.left = activeCorner.style.left =
-          e.clientX - crsDistanceX + "px";
-        const { left, top } = this.CRS[this.activeCorner];
-        this.h = activeDom.style.height =
-          Math.abs(parseInt(top) - (e.clientY - crsDistanceY)) + "px";
-        this.w = activeDom.style.width =
-          Math.abs(parseInt(left) - (e.clientX - crsDistanceX)) + "px";
+
+        const{pageX, pageY} = e
+        const baseWidth = parseInt(this.w) + (pageX - this.oldPageX)
+        const baseHeight = parseInt(this.h) + (pageY - this.oldPageY)
+        if(baseWidth <= 0 || baseHeight <= 0) return
+        this.w =  this.$refs.mask.style.width = activeDom.style.width =  baseWidth + "px"
+        this.h =  this.$refs.mask.style.height = activeDom.style.height =   baseHeight + "px"
+        this.$refs.RB.style.left = this.$refs.RT.style.left = baseWidth -4 + "px"
+        this.$refs.RB.style.top = this.$refs.LB.style.top = baseHeight -4 + "px"
+        this.oldPageX = pageX
+        this.oldPageY = pageY
       },
       crsChoose(e) {
         this.crsShouldMove = true;
-        activeCorner = e.currentTarget;
-        const { offsetLeft, offsetTop } = e.currentTarget;
-        const { left, top } = e.currentTarget.style;
-        this.crsDistanceX = e.clientX - offsetLeft;
-        this.crsDistanceY = e.clientY - offsetTop;
-        const active = Object.entries(this.CRS).find(
-          item => item[1].left === left && item[1].top === top,
-        )[0];
-        this.activeCorner = this.find[active];
+        const{pageX, pageY} = e
+        this.oldPageX =pageX
+        this.oldPageY = pageY
       },
-      cornorsMoveControl(offsetLeft, offsetTop) {
-        const { LT, RT, LB, RB } = this.CRS;
-        if (parseInt(RB.left) - parseInt(LT.left) < 0) return;
-        LT.left = offsetLeft - 4 + "px";
-        LT.top = offsetTop - 4 + "px";
-        RT.left = offsetLeft + parseInt(this.w) - 4 + "px";
-        RT.top = offsetTop - 4 + "px";
-        LB.left = offsetLeft - 4 + "px";
-        LB.top = offsetTop + parseInt(this.h) - 4 + "px";
-        RB.left = offsetLeft - 4 + parseInt(this.w) + "px";
-        RB.top = offsetTop + parseInt(this.h) - 4 + "px";
+      cornorsMoveControl() {
+        this.CRS.RT.left = parseInt(this.w) - 4 + "px";
+        this.CRS.RT.top = "-4px";
+        this.CRS.LB.left = "-4px";
+        this.CRS.LB.top = parseInt(this.h) - 4 + "px";
+        this.CRS.RB.left = parseInt(this.w) -4 + "px";
+        this.CRS.RB.top = parseInt(this.h) - 4 + "px";
       },
       choose(e) {
         activeDom = e.currentTarget;
@@ -383,11 +440,11 @@
         this.w = w;
         this.t = t;
         this.shouldMove = true;
-        e.currentTarget.style.outline = "#0000FF dotted thin";
         const { offsetLeft, offsetTop } = e.currentTarget;
-        this.cornorsMoveControl(offsetLeft, offsetTop);
+        this.cornorsMoveControl();
         this.distanceX = e.clientX - offsetLeft;
         this.distanceY = e.clientY - offsetTop;
+        this.activeItem = { h, l, w, t }
       },
       move(e) {
         if (!this.shouldMove) return;
@@ -396,12 +453,13 @@
         const newTop = e.clientY - distanceY
         const newLeft = e.clientX - distanceX
         const { w: width, h: height } = this.charts.find(item => item.id === activeDom.id)
-        const bottomBorder = newTop + parseInt(height)
-        const rightBorder = newLeft + parseInt(width)
+        const bottomBorder = newTop + height
+        const rightBorder = newLeft + width
         if (newTop < 0 || bottomBorder > 900 || rightBorder > 1500) return
         this.t = activeDom.style.top = newTop + "px";
         this.l = activeDom.style.left = newLeft + "px";
-        this.cornorsMoveControl(offsetLeft, offsetTop);
+        this.$refs.mask.style.top = newTop + "px";
+        this.$refs.mask.style.left = newLeft + "px";
       },
       up(e) {
         this.shouldMove = false;
@@ -413,17 +471,12 @@
         this.charts[index].l = left
         this.charts[index].t = top
       },
-      chart(ops){
-        console.log(ops)
-        //map[activeDom.id].setOption({})
-      },
       readConfig(){
         const config = [{h: "439px",
         id: "chart0.6122708683743796",
         l: "205px",
         t: "191px",
         w: "524px"}]
-
         this.charts = config
       }
     }
@@ -441,6 +494,7 @@
     height: 8px;
     outline: solid thin;
     position: absolute;
+    background-color: white;
   }
 
   .corner:nth-child(4):hover {
@@ -450,7 +504,9 @@
   .test {
     position: absolute;
   }
-
+.chart-title{
+display: flex
+}
   .chart-menu {
     min-width: 150px;
     width: 150px;
@@ -508,5 +564,29 @@
   .tool :nth-child(1) {
     background-image: url("../assets/pie_chart.svg");
   }
+
+
+
+.scroller {
+  height: 100%;
+}
+
+.user {
+  height: 10%;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+}
+.mask{
+  pointer-events: none;
+  position:absolute;
+  border: 1px solid green
+}
+.rb{
+  pointer-events: all;
+}
+.active{
+  display: none
+}
 </style>
 /* eslint-disable */

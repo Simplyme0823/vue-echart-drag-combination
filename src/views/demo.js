@@ -43,8 +43,12 @@ const DefaultBarOpts = {
   },
   legend: {show: true, data: BarY, bottom: 20},
   tooltip: {},
-  xAxis: {type: "category"},
-  yAxis: [{min: 0}],
+  xAxis: {
+    type: "category",
+    axisTick: {inside: true},
+    axisLabel: {fontSize: 15},
+  },
+  yAxis: [{min: 0, axisTick: {inside: true}, axisLabel: {fontSize: 15}}],
   dataset: [
     {
       source: localMockBarData,
