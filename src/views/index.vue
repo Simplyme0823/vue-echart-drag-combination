@@ -149,8 +149,12 @@
         </li>
       </ul>
 
-      <div style="border: 1px solid red;height: 900px; position: relative;margin-left: 152px;" class="work-area"
-        ref="workArea" @mouseup="fangshou($event)" @mousemove="weituo($event)" @mouseenter="enterDesign($event)" @mousedown="control($event)">
+      <div
+        class="work-area"
+        ref="workArea" 
+        @mouseup="fangshou($event)" 
+        @mousemove="weituo($event)" 
+        @mousedown="control($event)" >
         <div style="position: relative;">
           <div class="mask" :class="{active:isActive}" :style="{height: activeItem.h, width: activeItem.w, left: activeItem.l, top: activeItem.t}" ref="mask">
             <div class="corner" style="left:-4px; top:-4px" ref="LT"></div>
@@ -161,7 +165,7 @@
           </div>
           <div v-for="(item, index) in charts" :key="index"
             :style="{height: item.h, width: item.w, left: item.l, top: item.t}" :id="item.id" :ref="item.id"
-            class="test" @mouseenter="drag($event)" @mousedown="choose($event)" @mouseup="up($event)"></div>
+            class="test"  @mousedown="choose($event)" @mouseup="up($event)"></div>
         </div>
       </div>
     </div>
@@ -188,7 +192,7 @@
 
   let activeDom;
   let activeAdd = false
-
+  let appendNewDiv = false
   let typeList = ["line", "pie", "bar"]
 
   export default {
@@ -209,6 +213,8 @@
         oldPageX:"",
         oldPageY:"",
         isActive:true,
+        pageX:0,
+        pageY:0,
         CRS: {
           RT: {
             left: "",
@@ -347,27 +353,21 @@
       control(e){
         if(e.target === e.currentTarget){
           this.isActive = true
+          appendNewDiv = true
+          const id = "chart" + Math.random()
+          const {pageX, pageY, offsetX, offsetY} = e
+          this.pageX = pageX
+          this.pageY = pageY
+
+          this.newChart = { id, h: "0px", w: "0px", l: `${offsetX}px`, t: `${offsetY}px` }
+          this.charts.push(this.newChart)
+          this.$nextTick(()=>{
+            activeDom = this.$refs[this.newChart.id][0]
+            activeDom.style.border = "1px solid black"
+          })
           return
         }
         this.isActive = false
-      },
-      enterDesign(e) {
-        if (!activeAdd) return
-        const id = "chart" + Math.random()
-        this.newChart = { id, h: "300px", w: "300px", l: `${e.clientX - 200}px`, t: `${e.clientY - 150}px` }
-        this.charts.push(this.newChart)
-
-        activeAdd = true
-        this.$nextTick(() => {
-          activeDom = this.$refs[this.newChart.id][0]
-          activeDom.style.left = `${e.clientX - 200}px`
-          activeDom.style.top = `${e.clientY - 200}px`
-          this.activeItem.w = "300px"
-          this.activeItem.h = "300px"
-          const line = new YmsCharts("line")
-          map[id] = line
-          line.chart(activeDom)
-        })
       },
       drag(e) {
         if (!activeAdd) return
@@ -381,8 +381,7 @@
         this.w = w;
         this.t = t;
         this.shouldMove = true;
-        const { offsetLeft, offsetTop } = activeDom;
-        this.cornorsMoveControl(offsetLeft, offsetTop);
+        this.cornorsMoveControl();
         this.distanceX = e.clientX - offsetLeft;
         this.distanceY = e.clientY - offsetTop;
       },
@@ -391,6 +390,25 @@
         activeAdd = true
       },
       fangshou(e) {
+        if(appendNewDiv){
+          appendNewDiv = false
+          this.isActive = true
+          if(e.pageX === this.pageX && e.pageY === this.pageY){
+            // 删除
+            const {id} = activeDom
+            this.charts = this.charts.filter(item => item.id !== id)
+            activeDom = null
+            return
+          }
+          activeDom.style.border = ""
+          this.isActive = false
+          this.cover(e)
+          this.shouldMove = false
+          const ins = new YmsCharts("bar")
+          map[activeDom.id] = ins
+          ins.chart(activeDom)
+          return
+        }
         if(!activeDom) return
         this.crsShouldMove = false;
         const target = this.charts.find(item => item.id === activeDom.id);
@@ -400,6 +418,12 @@
         map[activeDom.id].resize()
       },
       weituo(e) {
+        if(appendNewDiv){
+          const {pageX, pageY} = e
+          activeDom.style.width = `${pageX - this.pageX}px`
+          activeDom.style.height = `${pageY - this.pageY}px`
+          return
+        }
         // echarts图形移动
         this.move(e)
         // 大小调整
@@ -432,15 +456,18 @@
       },
       choose(e) {
         activeDom = e.currentTarget;
+        this.cover(e)
+      },
+      cover(e){
         const { h, l, w, t } = this.charts.find(
-          item => item.id === e.currentTarget.id,
+          item => item.id === activeDom.id,
         );
         this.h = h;
         this.l = l;
         this.w = w;
         this.t = t;
         this.shouldMove = true;
-        const { offsetLeft, offsetTop } = e.currentTarget;
+        const { offsetLeft, offsetTop } = activeDom;
         this.cornorsMoveControl();
         this.distanceX = e.clientX - offsetLeft;
         this.distanceY = e.clientY - offsetTop;
@@ -587,6 +614,12 @@ display: flex
 }
 .active{
   display: none
+}
+.work-area{
+  border: 1px solid red;
+  height: 900px; 
+  position: relative;
+  margin-left: 152px;
 }
 </style>
 /* eslint-disable */
