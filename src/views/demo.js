@@ -123,7 +123,6 @@ export class YmsCharts {
   }
   // 外部传入的
   mergeOpts(options) {
-    console.log(options);
     this.options = merge(this.options, options);
   }
   dispose() {
@@ -133,7 +132,6 @@ export class YmsCharts {
   setOption(options) {
     //合并配置
     this.mergeOpts(options);
-    console.log(this.options);
     this.ins.setOption(this.options);
   }
 }

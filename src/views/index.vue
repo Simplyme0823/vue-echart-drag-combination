@@ -125,9 +125,15 @@
             </el-form-item>
           </el-form>
 
-      <div v-show="currentTool==='legend'">
-        <el-input></el-input>
-      </div>
+        <el-form :inline="true" :model="legend" v-show="currentTool==='legend'">
+          <el-form-item label="图例字号" prop="textStyle.fontSize">
+            <el-input-number v-model="legend.textStyle.fontSize"></el-input-number>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="changeLegend">应用</el-button>
+          </el-form-item>
+        </el-form>
+
     </div>
     <div style="position: relative;">
       <ul class="chart-menu" @mousedown="chooseType($event)" @mouseup="cancel($event)">
@@ -176,6 +182,7 @@
 </template>
 
 <script>
+  import { merge } from "merge-anything";
   import { YmsCharts } from "./demo.js"
   import  * as html2canvas from "html2canvas"
 
@@ -233,6 +240,11 @@
         w: "",
         l: "",
         t: "",
+        legend:{
+          textStyle:{
+            fontSize:12
+          }
+        },
         title:{
           text:"在Vue中使用Eharts",
           textStyle:{
@@ -271,6 +283,11 @@
       }
     },
     mounted() {
+      this.charts.forEach(item=>{
+            const ins = new YmsCharts("bar")
+            map[item.id] = ins
+             ins.chart(this.$refs[item.id][0])
+          })
       document.addEventListener("keyup", e => {
         if (e.keyCode === 46) {
           if (activeDom) {
@@ -279,8 +296,9 @@
               cancelButtonText: '取消',
               type: 'warning'
             }).then(() => {
-              charts.dispose()
+              map[activeDom.id].dispose()
               this.charts = this.charts.filter(item => item.id !== activeDom.id)
+              this.isActive = true
               this.$message({
                 type: 'success',
                 message: '删除成功!'
@@ -298,13 +316,6 @@
     },
     created(){
       this.readConfig()
-    },
-    mounted(){
-          this.charts.forEach(item=>{
-            const ins = new YmsCharts("bar")
-            map[item.id] = ins
-             ins.chart(this.$refs[item.id][0])
-          })
     },
     methods: {
       stop(e) {
@@ -327,10 +338,11 @@
           return
         }
         if(this.currentTool === "save"){
-          console.log(this.charts)
-        console.log(map)
-        this.charts
         }
+      },
+      changeLegend(e){
+        this.readSingleConfig()
+        map[activeDom.id].setOption({legend:this.legend})
       },
       changeTitle(e) {
         map[activeDom.id].setOption({title:this.title})
@@ -349,6 +361,16 @@
       },
       cancel(e) {
         activeAdd = false
+      },
+      readSingleConfig(){
+        const opts = map[activeDom.id].options
+        const arr = ["title","tooltip","xAxis","yAxis"]
+        arr.forEach(item => {
+          this[item] = merge(this[item], opts[item])
+        })
+        console.log(opts.title)
+        console.log(this.title)
+
       },
       control(e){
         if(e.target === e.currentTarget){
@@ -389,7 +411,7 @@
         if (typeList.indexOf(e.target.id) === -1) return
         activeAdd = true
       },
-      fangshou(e) {
+      fangshou(e) { 
         if(appendNewDiv){
           appendNewDiv = false
           this.isActive = true
