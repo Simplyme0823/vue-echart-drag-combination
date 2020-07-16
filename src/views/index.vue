@@ -273,8 +273,10 @@
             fontWeight:"normal"
           },
           nameGap:20,
-          axisLabel: {fontSize:15}
+          axisLabel: {fontSize: 15},
+          axisTick: {inside: true}
         },
+        tooltip:{},
         xAxis:{
           name:"",
           show:true,
@@ -341,7 +343,6 @@
         }
       },
       changeLegend(e){
-        this.readSingleConfig()
         map[activeDom.id].setOption({legend:this.legend})
       },
       changeTitle(e) {
@@ -366,11 +367,9 @@
         const opts = map[activeDom.id].options
         const arr = ["title","tooltip","xAxis","yAxis"]
         arr.forEach(item => {
-          this[item] = merge(this[item], opts[item])
+          this[item] = merge(JSON.parse(JSON.stringify(this[item])), 
+          JSON.parse(JSON.stringify(opts[item])))
         })
-        console.log(opts.title)
-        console.log(this.title)
-
       },
       control(e){
         if(e.target === e.currentTarget){
@@ -519,6 +518,9 @@
         this.charts[index].w = width
         this.charts[index].l = left
         this.charts[index].t = top
+        
+        // 读取单个图片的配置
+        this.readSingleConfig()
       },
       readConfig(){
         const config = [{h: "439px",

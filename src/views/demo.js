@@ -48,7 +48,11 @@ const DefaultBarOpts = {
     axisTick: {inside: true},
     axisLabel: {fontSize: 15},
   },
-  yAxis: [{min: 0, axisTick: {inside: true}, axisLabel: {fontSize: 15}}],
+  yAxis: {
+    min: 0,
+    axisTick: {inside: true},
+    axisLabel: {fontSize: 15},
+  },
   dataset: [
     {
       source: localMockBarData,
