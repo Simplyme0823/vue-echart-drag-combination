@@ -4,17 +4,29 @@
 <template>
   <div>
     <div class="tool-menu" @click="changeTool" style=" border:0px solid red;">
+      <img class="tool" id="size" src="../assets/size.svg" draggable="false" alt="size" />
       <img class="tool" id="legend" src="../assets/legend.jpg" draggable="false" alt="legend" />
       <img class="tool" id="color" src="../assets/color.svg" draggable="false" alt="color" />
       <img class="tool" id="title" src="../assets/title.svg" draggable="false" alt="title" />
       <img class="tool" id="XAxis" src="../assets/axis.svg" draggable="false" alt="x-axis" />
       <img class="tool" id="YAxis" src="../assets/y-axis.svg" draggable="false" alt="y-axis" />
-      <img class="tool" id="data" src="../assets/data.svg" draggable="false" alt="data" />
       <img class="tool" id="grid" src="../assets/grid.svg" draggable="false" alt="grid" />
+      <img class="tool" id="data" src="../assets/data.svg" draggable="false" alt="data" />
       <img class="tool" id="download" src="../assets/download.svg" draggable="false" alt="download" />
       <img class="tool" id="save" src="../assets/save.svg" draggable="false" alt="save" />
     </div>
     <div class="chart-title" >
+      <el-form :inline="true" v-show="currentTool==='size'">
+        <el-form-item label="图形高度">
+          <el-input-number v-model="h"></el-input-number>
+        </el-form-item>
+        <el-form-item label="图形宽度">
+          <el-input-number v-model="w"></el-input-number>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="manualResize">应用</el-button>
+      </el-form-item>
+      </el-form>
         <el-form :inline="true" v-show="currentTool==='title'">
           <el-form-item label="标题">
             <el-input v-model="title.text" style="width:400px"></el-input>
@@ -129,8 +141,24 @@
           <el-form-item label="图例字号" prop="textStyle.fontSize">
             <el-input-number v-model="legend.textStyle.fontSize"></el-input-number>
           </el-form-item>
+          <el-form-item label="图例形状" prop="icon">
+            <el-select v-model="legend.icon">
+              <el-option 
+              v-for="item in iconList" 
+              :key="item" 
+              :label="item" 
+              :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item>
             <el-button @click="changeLegend">应用</el-button>
+          </el-form-item>
+        </el-form>
+
+        <el-form :inline="true" :model="colorConfig" v-show="currentTool==='color'">
+          <el-form-item label="自定义配色" prop="show">
+            <el-switch v-model="colorConfig.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </el-form-item>
         </el-form>
 
@@ -206,6 +234,11 @@
     name: "echarts",
     data() {
       return {
+        colorConfig:{
+          show:false,
+          color:[]
+        },
+        currentChartType:"bar",
         shouldMove: false,
         crsShouldMove: false,
         distanceX: 0,
@@ -240,10 +273,15 @@
         w: "",
         l: "",
         t: "",
+        iconList:['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'],
         legend:{
           textStyle:{
             fontSize:12
-          }
+          },
+          icon:"roundRect",
+          itemWidth:25,
+          itemHeight:14,
+          bottom:0
         },
         title:{
           text:"在Vue中使用Eharts",
@@ -326,12 +364,15 @@
         }
       },
       changeTool(e) {
+        const old = this.currentTool
         this.currentTool = e.target.id
         if (this.currentTool === "data") {
+          this.currentTool = old
           this.drawer = true
           return
         }
         if (this.currentTool === "download") {
+          this.currentTool = old
           html2canvas(this.$refs.workArea).
           then(canvas => {
             var pageData = canvas.toDataURL('image/jpeg', 1.0);
@@ -340,7 +381,23 @@
           return
         }
         if(this.currentTool === "save"){
+          this.currentTool = old
+          console.log(this.charts)
+          return
         }
+
+      },
+      manualResize(){
+        this.$refs.mask.style.width = activeDom.style.width =  this.w + "px"
+        this.$refs.mask.style.height = activeDom.style.height =   this.h + "px"
+        this.$refs.RB.style.left = this.$refs.RT.style.left = this.w -4 + "px"
+        this.$refs.RB.style.top = this.$refs.LB.style.top = this.h -4 + "px"
+        // 更新数据
+        const target =  this.charts.find(item=>item.id===activeDom.id)
+        target.w = this.w + "px"
+        target.h = this.h + "px"
+        console.log(target)
+        map[activeDom.id].resize()
       },
       changeLegend(e){
         map[activeDom.id].setOption({legend:this.legend})
@@ -425,7 +482,7 @@
           this.isActive = false
           this.cover(e)
           this.shouldMove = false
-          const ins = new YmsCharts("bar")
+          const ins = new YmsCharts(this.currentChartType)
           map[activeDom.id] = ins
           ins.chart(activeDom)
           return
@@ -460,6 +517,10 @@
         this.$refs.RB.style.top = this.$refs.LB.style.top = baseHeight -4 + "px"
         this.oldPageX = pageX
         this.oldPageY = pageY
+        this.$nextTick(()=>{
+          map[activeDom.id].resize()
+        })       
+
       },
       crsChoose(e) {
         this.crsShouldMove = true;
@@ -477,6 +538,7 @@
       },
       choose(e) {
         activeDom = e.currentTarget;
+        this.readSingleConfig()
         this.cover(e)
       },
       cover(e){
@@ -518,9 +580,9 @@
         this.charts[index].w = width
         this.charts[index].l = left
         this.charts[index].t = top
-        
         // 读取单个图片的配置
-        this.readSingleConfig()
+          // this.readSingleConfig()
+
       },
       readConfig(){
         const config = [{h: "439px",

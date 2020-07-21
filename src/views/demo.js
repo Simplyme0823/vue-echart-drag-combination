@@ -1,5 +1,5 @@
 /** @format */
-import {merge} from "merge-anything";
+import { merge } from "merge-anything";
 import * as echarts from "echarts/lib/echarts";
 
 import "echarts/lib/chart/pie";
@@ -11,8 +11,8 @@ import "echarts/lib/component/title";
 import "echarts/lib/component/legend";
 
 const localMockBarData = [
-  {year: 2015, raido: 0.5, test: 6},
-  {year: 2016, raido: 0.6, test: 8},
+  { year: 2015, raido: 0.5, test: 6 },
+  { year: 2016, raido: 0.6, test: 8 },
 ];
 
 const BarDims = Object.keys(localMockBarData[0]);
@@ -41,17 +41,25 @@ const DefaultBarOpts = {
       fontSize: 30,
     },
   },
-  legend: {show: true, data: BarY, bottom: 20},
+  legend: {
+    show: true,
+    data: BarY,
+    bottom: 20,
+    icon: "roundRect",
+    itemWidth: 25,
+    itemHeight: 14,
+    bottom: 0,
+  },
   tooltip: {},
   xAxis: {
     type: "category",
-    axisTick: {inside: true},
-    axisLabel: {fontSize: 15},
+    axisTick: { inside: true },
+    axisLabel: { fontSize: 15 },
   },
   yAxis: {
     min: 0,
-    axisTick: {inside: true},
-    axisLabel: {fontSize: 15},
+    axisTick: { inside: true },
+    axisLabel: { fontSize: 15 },
   },
   dataset: [
     {
@@ -62,8 +70,8 @@ const DefaultBarOpts = {
 };
 
 const localMockLineData = [
-  {year: 2015, mount: 11, test: 15},
-  {year: 2016, mount: 12, test: 16},
+  { year: 2015, mount: 11, test: 15 },
+  { year: 2016, mount: 12, test: 16 },
 ];
 const LineDims = Object.keys(localMockLineData[0]);
 const LineX = LineDims[0];
@@ -91,10 +99,10 @@ const DefalutLineOpts = {
       fontSize: 30,
     },
   },
-  legend: {show: true, data: LineY, bottom: 0},
+  legend: { show: true, data: LineY, bottom: 0 },
   tooltip: {},
-  xAxis: {type: "category"},
-  yAxis: [{min: 0}],
+  xAxis: { type: "category" },
+  yAxis: [{ min: 0 }],
   dataset: [
     {
       source: localMockLineData,
@@ -123,7 +131,7 @@ export class YmsCharts {
     this.ins.setOption(this.options);
   }
   resize() {
-    this.ins.resize({width: "auto", height: "auto"});
+    this.ins.resize({ width: "auto", height: "auto" });
   }
   // 外部传入的
   mergeOpts(options) {
