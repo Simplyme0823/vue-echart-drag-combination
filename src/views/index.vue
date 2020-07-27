@@ -2,7 +2,8 @@
 
 /* eslint-disable */
 <template>
-  <div>
+  <div style="display: flex;flex-direction: column;">
+
     <div class="tool-menu" @click="changeTool" style=" border:0px solid red;">
       <img class="tool" id="size" src="../assets/size.svg" draggable="false" alt="size" />
       <img class="tool" id="legend" src="../assets/legend.jpg" draggable="false" alt="legend" />
@@ -190,6 +191,10 @@
         @mousemove="weituo($event)" 
         @mousedown="control($event)" >
         <div style="position: relative;">
+          <div class="guide">
+            <hr style="background-color:green;height: 1px;border: none;display: flex;width: 4000px;"/>
+            <hr style="background-color:green;width:1px;border: none;height: 2000px;"/>
+          </div>
           <div class="mask" :class="{active:isActive}" :style="{height: activeItem.h, width: activeItem.w, left: activeItem.l, top: activeItem.t}" ref="mask">
             <div class="corner" style="left:-4px; top:-4px" ref="LT"></div>
             <div class="corner" :style="{left: CRS.RT.left, top: CRS.RT.top}" ref="RT"></div>
@@ -229,7 +234,8 @@
   let activeAdd = false
   let appendNewDiv = false
   let typeList = ["line", "pie", "bar"]
-
+  let compareArr
+  let compareSpec = 15
   export default {
     name: "echarts",
     data() {
@@ -382,10 +388,14 @@
         }
         if(this.currentTool === "save"){
           this.currentTool = old
-          console.log(this.charts)
+
+          const config = this.charts.reduce((prev,cur)=>{
+            prev.push({position:cur,options:map[cur.id].options})
+            return prev
+          },[])
+          console.log(JSON.stringify(config))
           return
         }
-
       },
       manualResize(){
         this.$refs.mask.style.width = activeDom.style.width =  this.w + "px"
@@ -396,7 +406,7 @@
         const target =  this.charts.find(item=>item.id===activeDom.id)
         target.w = this.w + "px"
         target.h = this.h + "px"
-        console.log(target)
+
         map[activeDom.id].resize()
       },
       changeLegend(e){
@@ -517,10 +527,7 @@
         this.$refs.RB.style.top = this.$refs.LB.style.top = baseHeight -4 + "px"
         this.oldPageX = pageX
         this.oldPageY = pageY
-        this.$nextTick(()=>{
-          map[activeDom.id].resize()
-        })       
-
+        map[activeDom.id].resize()
       },
       crsChoose(e) {
         this.crsShouldMove = true;
@@ -540,6 +547,7 @@
         activeDom = e.currentTarget;
         this.readSingleConfig()
         this.cover(e)
+        compareArr = this.charts.filter(item => item.id !== activeDom.id)
       },
       cover(e){
         const { h, l, w, t } = this.charts.find(
@@ -563,13 +571,75 @@
         const newTop = e.clientY - distanceY
         const newLeft = e.clientX - distanceX
         const { w: width, h: height } = this.charts.find(item => item.id === activeDom.id)
-        const bottomBorder = newTop + height
-        const rightBorder = newLeft + width
-        if (newTop < 0 || bottomBorder > 900 || rightBorder > 1500) return
+        // const bottomBorder = newTop + height
+        // const rightBorder = newLeft + width
+        // if (newTop < 0 || bottomBorder > 900 || rightBorder > 1500) return
         this.t = activeDom.style.top = newTop + "px";
         this.l = activeDom.style.left = newLeft + "px";
         this.$refs.mask.style.top = newTop + "px";
         this.$refs.mask.style.left = newLeft + "px";
+        this.compare(newTop, newLeft)
+      },
+      compare(targetTop, targetLeft){
+        const length = compareArr.length
+        if(length===0) return
+        let i = -1
+        while(++i < length){
+          if(!compareArr[i]) break
+          const {l,t,w,h} = compareArr[i]
+          if(Math.abs(targetTop - parseInt(t, 10)) < compareSpec)
+           {
+            this.t = activeDom.style.top = t
+            this.$refs.mask.style.top = t
+          }
+
+          if(Math.abs(targetTop + parseInt(this.h, 10) - parseInt(t, 10)) < compareSpec){
+            this.t = activeDom.style.top = parseInt(t,10) - parseInt(this.h) + "px"
+            this.$refs.mask.style.top = parseInt(t,10) - parseInt(this.h) + "px"
+          }
+
+          if(
+          Math.abs(targetTop + parseInt(this.h, 10) - parseInt(t, 10)- parseInt(h, 10)) < compareSpec){
+            this.t = activeDom.style.top = parseInt(t,10) + parseInt(h,10) -  parseInt(this.h,10) + "px"
+            this.$refs.mask.style.top = parseInt(t,10) + parseInt(h,10) -  parseInt(this.h,10) + "px"
+        
+          } 
+
+          if(Math.abs(targetTop - parseInt(t,10) - parseInt(h, 10)) < compareSpec ){
+            this.t = activeDom.style.top = parseInt(t,10) + parseInt(h,10) + "px"
+            this.$refs.mask.style.top = parseInt(t,10) + parseInt(h,10)+ "px"
+        
+          }
+
+          if(Math.abs(targetLeft - parseInt(l, 10)) < compareSpec)
+           {
+            this.l = activeDom.style.left = l
+            this.$refs.mask.style.left = l
+          
+          }
+
+          if(Math.abs(targetLeft + parseInt(this.w, 10) - parseInt(l, 10)) < compareSpec){
+            this.l = activeDom.style.left = parseInt(l,10) - parseInt(this.w) + "px"
+            this.$refs.mask.style.left = parseInt(l,10) - parseInt(this.w) + "px"
+        
+          }
+
+          if(
+          Math.abs(targetLeft + parseInt(this.w, 10) - parseInt(w, 10)- parseInt(l, 10)) < compareSpec){
+            this.l = activeDom.style.left = parseInt(l,10) + parseInt(w,10) -  parseInt(this.w, 10) + "px"
+            this.$refs.mask.style.left = parseInt(l,10) + parseInt(w,10) -  parseInt(this.w, 10) + "px"
+        
+          } 
+          
+          if(Math.abs(targetLeft - parseInt(l,10) - parseInt(w, 10)) < compareSpec ){
+            this.l = activeDom.style.left = parseInt(l,10) + parseInt(w,10) + "px"
+            this.$refs.mask.style.left = parseInt(l,10) + parseInt(w,10)+ "px"
+          }
+
+        }
+      },
+      showGuideLine(){
+
       },
       up(e) {
         this.shouldMove = false;
@@ -706,6 +776,11 @@ display: flex
   height: 900px; 
   position: relative;
   margin-left: 152px;
+  overflow: hidden;
+}
+.guide{
+  position: absolute;
+  z-index: -1;
 }
 </style>
 /* eslint-disable */
