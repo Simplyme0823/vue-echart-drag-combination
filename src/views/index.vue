@@ -236,6 +236,56 @@
   let typeList = ["line", "pie", "bar"]
   let compareArr
   let compareSpec = 15
+
+  function distanceRecord(){
+    let distanceX = new Set()
+    distanceX.add(0)
+    let distanceY = new Set()
+    distanceY.add(0)
+    let last ={id:"",rh:0,lh:0,distanceY:""}
+    return {
+      setDistanceX(target, newVal1, newVal2){
+        console.log(last.id, target.id)
+        if(last.id===target){
+          if(last.rh){
+          distanceX.delete(last.rh)
+        }
+        if(last.lh){
+          distanceX.delete(last.lh)
+        }
+        }
+
+        distanceX.add(newVal1)
+        distanceX.add(newVal2)
+
+        if(target){
+          last.id = target
+          last.rh = newVal1
+          last.lh = newVal2
+        }
+      },
+      getDistanceX(){
+        return distanceX
+      },
+      setDistanceY(newVal){
+        if(last.distanceY){
+          distanceY.delete(last.distanceY)
+        }
+
+        distanceY.add(newVal)
+        if(target){
+          last.id = target.id
+          last.distanceY = newVal
+        }
+      },
+      getDistanceY(){
+        return distanceY
+      }
+    }
+  }
+
+  const distance = distanceRecord()
+
   export default {
     name: "echarts",
     data() {
@@ -504,6 +554,45 @@
         target.w = activeDom.style.width;
         target.h = activeDom.style.height;
         map[activeDom.id].resize()
+        this.calDistance()
+      },
+      calDistance(){
+        let {l, t, w, h} = this
+        l = parseInt(l)
+        t = parseInt(t)
+        w = parseInt(w)
+        h = parseInt(h)
+        const length = compareArr.length
+        if(length === 0 )return
+        let i = -1 
+        let rh = 0
+        let lh = 0
+        while(++i < length){
+          let {l:cl, t:ct, w:cw, h:ch} = compareArr[i]
+          cl = parseInt(cl)
+          ct = parseInt(ct)
+          cw = parseInt(cw)
+          ch = parseInt(ch)
+          if(l-cl-cw > 0){
+            if(rh> 0){
+              rh = Math.min(rh, l-cl-cw)
+            }else{
+              rh = l-cl-cw
+            }
+          }
+          if(cl-l-w > 0){
+            if(lh > 0){
+              lh = Math.min(lh, cl-l-w)
+            }else{
+              lh = cl-l-w
+            }
+          }
+        }
+        // x的distance
+        console.log(rh, lh)
+        distance.setDistanceX(activeDom.id, rh, lh)
+        console.log(activeDom.id)
+        console.log(distance.getDistanceX())
       },
       weituo(e) {
         if(appendNewDiv){

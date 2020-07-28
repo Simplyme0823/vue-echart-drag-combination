@@ -41,7 +41,7 @@ const DefaultBarOpts = {
       fontSize: 30,
     },
   },
-  legend: {
+  leegnd: {
     show: true,
     data: BarY,
     bottom: 20,
