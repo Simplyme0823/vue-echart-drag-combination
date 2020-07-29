@@ -237,13 +237,85 @@
   let compareArr
   let compareSpec = 15
 
+
+  function insertHalf(arr,target){
+    if(arr.length ===0){
+      return [target]
+    }
+    let left = 0
+    let right = arr.length - 1
+    while(left <= right){
+      let mid = ~~(left + right)
+      if(arr[mid] === target){
+        return arr
+      }else if(arr[mid] > target){
+        right = mid - 1
+      }else {
+        left = mid + 1
+      }
+    }
+    arr.splice(left,0,target)
+    return arr
+  }
+
+function findHalf(arr, target){
+  let left = 0
+    let right = arr.length - 1
+    while(left <= right){
+      let mid = ~~(left + right)
+      if(arr[mid] === target){
+        return right
+      }else if(arr[mid] > target){
+        right = mid - 1
+      }else {
+        left = mid + 1
+      }
+    }
+    return left 
+}
+
+let closeLeftIndex = 0
+let closeRightIndex = 0
+
   function distanceRecord(){
+    const locationByDiv = {}
+    let locationX = []
+    let locationY = []
     let distanceX = new Set()
     distanceX.add(0)
     let distanceY = new Set()
     distanceY.add(0)
     let last ={id:"",rh:0,lh:0,distanceY:""}
     return {
+      readLocationX(){
+        return locationX
+      },
+      appendLoactionX(id, x1, x2){
+        if(distanceX.length >1){
+          const{left, right} = locationByDiv.id
+        locationX = locationX.filter(item => item!== left || item !== right)
+        }
+
+        locationX = insertHalf(locationX, x1)
+        locationX = insertHalf(locationX, x2)
+
+        locationByDiv.id = id
+        locationByDiv.left = x1
+        locationByDiv.right = x2
+      },
+      findCloseX(left,right){
+        if (locationX.length === 0){
+          return [0 ,0]
+        }
+        let leftIndex = findHalf(locationX,left)
+        let rightIndex = findHalf(locationX, right) + 2
+        leftIndex = leftIndex <= 0 ? 0 :leftIndex 
+        rightIndex = rightIndex > locationX.length - 1 ? locationX.length - 1 : rightIndex
+        return [leftIndex, rightIndex] 
+      },
+      appendLocationY(){
+
+      },
       setDistanceX(target, newVal1, newVal2){
         console.log(last.id, target.id)
         if(last.id===target){
@@ -554,7 +626,6 @@
         target.w = activeDom.style.width;
         target.h = activeDom.style.height;
         map[activeDom.id].resize()
-        this.calDistance()
       },
       calDistance(){
         let {l, t, w, h} = this
@@ -562,37 +633,19 @@
         t = parseInt(t)
         w = parseInt(w)
         h = parseInt(h)
+        let i = -1
         const length = compareArr.length
-        if(length === 0 )return
-        let i = -1 
-        let rh = 0
-        let lh = 0
+        if(length==-0) return
+        let distanceX = 100000
         while(++i < length){
-          let {l:cl, t:ct, w:cw, h:ch} = compareArr[i]
-          cl = parseInt(cl)
-          ct = parseInt(ct)
-          cw = parseInt(cw)
-          ch = parseInt(ch)
-          if(l-cl-cw > 0){
-            if(rh> 0){
-              rh = Math.min(rh, l-cl-cw)
-            }else{
-              rh = l-cl-cw
-            }
-          }
-          if(cl-l-w > 0){
-            if(lh > 0){
-              lh = Math.min(lh, cl-l-w)
-            }else{
-              lh = cl-l-w
-            }
-          }
+          const item = compareArr[i]
+          const cl = parseInt(item.l)
+          const cr = cl + parseInt(item.w)
+          const ct = parseInt(item.t)
+          console.log(l-cr,l-cl)
         }
-        // x的distance
-        console.log(rh, lh)
-        distance.setDistanceX(activeDom.id, rh, lh)
-        console.log(activeDom.id)
-        console.log(distance.getDistanceX())
+
+
       },
       weituo(e) {
         if(appendNewDiv){
@@ -660,9 +713,6 @@
         const newTop = e.clientY - distanceY
         const newLeft = e.clientX - distanceX
         const { w: width, h: height } = this.charts.find(item => item.id === activeDom.id)
-        // const bottomBorder = newTop + height
-        // const rightBorder = newLeft + width
-        // if (newTop < 0 || bottomBorder > 900 || rightBorder > 1500) return
         this.t = activeDom.style.top = newTop + "px";
         this.l = activeDom.style.left = newLeft + "px";
         this.$refs.mask.style.top = newTop + "px";
@@ -724,7 +774,6 @@
             this.l = activeDom.style.left = parseInt(l,10) + parseInt(w,10) + "px"
             this.$refs.mask.style.left = parseInt(l,10) + parseInt(w,10)+ "px"
           }
-
         }
       },
       showGuideLine(){
@@ -741,7 +790,6 @@
         this.charts[index].t = top
         // 读取单个图片的配置
           // this.readSingleConfig()
-
       },
       readConfig(){
         const config = [{h: "439px",
@@ -750,6 +798,10 @@
         t: "191px",
         w: "524px"}]
         this.charts = config
+        config.forEach(item=>{
+          distance.appendLoactionX(item.id, parseInt(item.l),parseInt(item.l)+parseInt(item.w))
+        })
+
       }
     }
   }
