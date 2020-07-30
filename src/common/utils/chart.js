@@ -6,9 +6,28 @@ import "echarts/lib/chart/pie";
 import "echarts/lib/chart/bar";
 import "echarts/lib/chart/line";
 import "echarts/lib/chart/scatter";
+import "echarts/lib/chart/sunburst";
+import "echarts/lib/chart/radar";
+import "echarts/lib/chart/heatmap";
 import "echarts/lib/component/tooltip";
 import "echarts/lib/component/title";
 import "echarts/lib/component/legend";
+
+import { DefaultBarOpts } from "../../common/template/bar";
+import { DefalutLineOpts } from "../../common/template/line";
+import { DefalutPieOpts } from "../../common/template/pie";
+import { DefaultHeatOpts } from "../../common/template/heat";
+import { DefaultRadarOpts } from "../../common/template/radar";
+import { DefaultSunburstOpts } from "../../common/template/sunburst";
+
+const strategies = {
+  bar: DefaultBarOpts,
+  line: DefalutLineOpts,
+  pie: DefalutPieOpts,
+  heat: DefaultHeatOpts,
+  radar: DefaultRadarOpts,
+  sunburst: DefaultSunburstOpts,
+};
 
 export class YmsCharts {
   constructor(type) {

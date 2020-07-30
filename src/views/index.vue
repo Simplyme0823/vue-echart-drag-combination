@@ -7,6 +7,7 @@
     <div class="tool-menu" @click="changeTool" style=" border:0px solid red;">
       <img class="tool" id="size" src="../assets/size.svg" draggable="false" alt="size" />
       <img class="tool" id="legend" src="../assets/legend.jpg" draggable="false" alt="legend" />
+      <img class="tool" id="label" src="../assets/label.svg" draggable="false" alt="label" />
       <img class="tool" id="color" src="../assets/color.svg" draggable="false" alt="color" />
       <img class="tool" id="title" src="../assets/title.svg" draggable="false" alt="title" />
       <img class="tool" id="XAxis" src="../assets/axis.svg" draggable="false" alt="x-axis" />
@@ -63,23 +64,42 @@
           </el-form-item>
         </el-form>
 
-        <el-form :inline="true" v-show="currentTool==='grid'">
+        <el-form :inline="true" v-show="showGrid">
           <el-form-item label="上">
-            <el-input-number v-model="grid.top" :step="1"  :min="0" :max="50"></el-input-number>
+            <el-input-number v-model="gridNum.top" :step="1"  :min="0" :max="50"></el-input-number>
           </el-form-item>
           <el-form-item label="下">
-            <el-input-number v-model="grid.bottom" :step="1"  :min="0" :max="50"></el-input-number>
+            <el-input-number v-model="gridNum.bottom" :step="1"  :min="0" :max="50"></el-input-number>
           </el-form-item>
           <el-form-item label="左">
-            <el-input-number v-model="grid.left" :step="1"  :min="0" :max="50"></el-input-number>
+            <el-input-number v-model="gridNum.left" :step="1"  :min="0" :max="50"></el-input-number>
           </el-form-item>
           <el-form-item label="右">
-            <el-input-number v-model="grid.right" :step="1"  :min="0" :max="50"></el-input-number>
+            <el-input-number v-model="gridNum.right" :step="1"  :min="0" :max="50"></el-input-number>
           </el-form-item>
           <el-form-item>
             <el-button @click="changeGrid">应用</el-button>
           </el-form-item>
         </el-form>
+
+        <el-form :inline="true" v-show="showPieGrid">
+          <el-form-item label="左">
+            <el-input-number v-model="pieGridNum.left" :step="1"  :min="0" :max="100"></el-input-number>
+          </el-form-item>
+          <el-form-item label="上">
+            <el-input-number v-model="pieGridNum.top" :step="1"  :min="0" :max="100"></el-input-number>
+          </el-form-item>
+          <el-form-item label="起点" v-show="currentChartType!=='radar'">
+            <el-input-number v-model="pieGridNum.radiusStart" :step="1"  :min="0" :max="100"></el-input-number>
+          </el-form-item>
+          <el-form-item label="终点">
+            <el-input-number v-model="pieGridNum.radiusEnd" :step="1"  :min="0" :max="100"></el-input-number>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="changeGrid">应用</el-button>
+          </el-form-item>
+        </el-form>
+
 
           <el-form :inline="true" :model="yAxis" v-show="currentTool==='YAxis'">
             <el-form-item label="显示" prop="show">
@@ -157,6 +177,13 @@
           </el-form-item>
         </el-form>
 
+        <el-form :inline="true" :model="legend" v-show="currentTool==='label'">
+          
+          <el-form-item>
+            <el-button @click="changeLegend">应用</el-button>
+          </el-form-item>
+        </el-form>
+
         <el-form :inline="true" :model="colorConfig" v-show="currentTool==='color'">
           <el-form-item label="自定义配色" prop="show">
             <el-switch v-model="colorConfig.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
@@ -165,7 +192,7 @@
 
     </div>
     <div style="position: relative;">
-      <ul class="chart-menu" @mousedown="chooseType($event)" @mouseup="cancel($event)">
+      <ul class="chart-menu" @mousedown="chooseType($event)" @mouseup="chooseChartType($event)">
         <li>
           <div style="
           display: inline-block;
@@ -178,10 +205,15 @@
           基础图形
         </li>
         <li>
-          <div id="line""></div>
+          <div id="line"></div>
           <div id="pie"></div>
           <div id="bar"></div>
         </li>
+      <li>
+        <div id="heat"></div>
+        <div id="sunburst"></div>
+        <div id="radar"></div>
+      </li>
       </ul>
 
       <div
@@ -216,7 +248,7 @@
 
 <script>
   import { merge } from "merge-anything";
-  import { YmsCharts } from "./demo.js"
+  import { YmsCharts } from "../common/utils/chart"
   import  * as html2canvas from "html2canvas"
 
   const saveFile = function(data, filename){
@@ -360,6 +392,59 @@ let closeRightIndex = 0
 
   export default {
     name: "echarts",
+    computed:{
+      grid:{
+        get(){
+          return {
+            top:`${this.gridNum.top}%`,
+            left:`${this.gridNum.left}%`,
+            right:`${this.gridNum.right}%`,
+            bottom:`${this.gridNum.bottom}%`
+          }
+        },
+        set(){
+        }
+      },
+      center:{
+        get(){
+          return  [`${this.pieGridNum.left}%`,`${this.pieGridNum.top}%`]
+        },
+        set(){
+
+        }
+      },
+      radius:{
+        get(){
+          if(this.currentChartType === "radar"){
+            return `${this.pieGridNum.radiusEnd}%`
+          }
+          return  [`${this.pieGridNum.radiusStart}%`,`${this.pieGridNum.radiusEnd}%`]
+        },
+        set(){
+
+        },
+      },
+      showGrid:{
+        get(){
+          return this.currentTool === 'grid' && (
+            this.currentChartType === 'line' ||
+            this.currentChartType === 'bar' ||
+            this.currentChartType === "heat"
+          )
+        },
+        set(){}
+      },
+      showPieGrid:{
+        get(){
+          return this.currentTool === 'grid' && (
+            this.currentChartType === 'pie' ||
+            this.currentChartType === 'sunburst' ||
+            this.currentChartType === "radar"
+          )
+        },
+        set(){}
+      }
+    },
     data() {
       return {
         colorConfig:{
@@ -421,11 +506,17 @@ let closeRightIndex = 0
           },
           left:"center"
         },
-        grid:{
+        gridNum:{
           left:'10%',
           top:60,
           right:"10%",
           bottom:60
+        },
+        pieGridNum:{
+          top:0,
+          left:0,
+          radiusStart:0,
+          radiusEnd:0
         },
         yAxis:{
           max:null,
@@ -488,7 +579,7 @@ let closeRightIndex = 0
     methods: {
       stop(e) {
         if (e.target.className === 'work-erea') {
-          activeAdd = false
+          // activeAdd = false
         }
       },
       changeTool(e) {
@@ -544,17 +635,43 @@ let closeRightIndex = 0
         map[activeDom.id].setOption({xAxis:this.xAxis})
       },
       changeGrid(e){
-        map[activeDom.id].setOption({grid:this.grid})
+        if(this.showGrid){
+          map[activeDom.id].setOption({grid:this.grid})
+          return
+        }
+        if(this.showPieGrid){
+          if(this.currentChartType === "radar"){
+            const position = {
+              radar:{
+                center:this.center,
+                radius:this.radius
+              }
+            }
+            map[activeDom.id].setOption(position)
+            return
+          }
+          const position = {
+            series:[{
+          radius:this.radius,
+          center:this.center
+          }]
+        }
+          map[activeDom.id].setOption(position)
+        }
+
       },
       tool(e) {
         map[activeDom.id].setOption()
       },
-      cancel(e) {
-        activeAdd = false
+      chooseChartType(e) {
+        const chartType = e.target.id
+        if(chartType){
+          this.currentChartType = chartType
+        }
       },
       readSingleConfig(){
         const opts = map[activeDom.id].options
-        const arr = ["title","tooltip","xAxis","yAxis"]
+        const arr = ["title","tooltip"] //,"xAxis","yAxis"
         arr.forEach(item => {
           this[item] = merge(JSON.parse(JSON.stringify(this[item])), 
           JSON.parse(JSON.stringify(opts[item])))
@@ -580,7 +697,7 @@ let closeRightIndex = 0
         this.isActive = false
       },
       drag(e) {
-        if (!activeAdd) return
+        // if (!activeAdd) return
         this.isActive = false
         activeDom = this.$refs[this.newChart.id][0]
         const { h, l, w, t } = this.charts.find(
@@ -596,8 +713,8 @@ let closeRightIndex = 0
         this.distanceY = e.clientY - offsetTop;
       },
       chooseType(e) {
-        if (typeList.indexOf(e.target.id) === -1) return
-        activeAdd = true
+        // if (typeList.indexOf(e.target.id) === -1) return
+        // activeAdd = true
       },
       fangshou(e) { 
         if(appendNewDiv){
@@ -781,7 +898,7 @@ let closeRightIndex = 0
       },
       up(e) {
         this.shouldMove = false;
-        activeAdd = false
+        // activeAdd = false
         const { top, left, width, height } = activeDom.style
         const index = this.charts.findIndex(item => item.id === activeDom.id)
         this.charts[index].h = height
@@ -866,6 +983,18 @@ display: flex
     background-image: url("../assets/bars_chart.svg");
   }
 
+  #sunburst {
+  background-image:url("../assets/sunburst.svg");
+  background-size: contain;
+  }
+  #heat{
+    background-image:url("../assets/heat.svg");
+  background-size: contain;
+  }
+  #radar{
+    background-image:url("../assets/radar.svg");
+  background-size: contain;
+  }
   .tool {
     float: left;
     width: 25px;
