@@ -101,7 +101,7 @@
         </el-form>
 
 
-          <el-form :inline="true" :model="yAxis" v-show="currentTool==='YAxis'">
+          <el-form :inline="true" :model="yAxis" v-show="showYAxis">
             <el-form-item label="显示" prop="show">
               <el-switch v-model="yAxis.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
             </el-form-item>
@@ -132,7 +132,7 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="刻度大小" prop="axisLabel.fontSize">
+            <el-form-item label="字体大小" prop="axisLabel.fontSize">
                 <el-input v-model="yAxis.axisLabel.fontSize" style="width:80px"></el-input>
             </el-form-item>
             <el-form-item label="位置" prop="nameGap">
@@ -143,11 +143,11 @@
             </el-form-item>
           </el-form>
 
-          <el-form :inline="true" :model="xAxis" v-show="currentTool==='XAxis'">
+          <el-form :inline="true" :model="xAxis" v-show="showXAxis">
             <el-form-item label="显示" prop="show">
               <el-switch v-model="xAxis.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
             </el-form-item>
-            <el-form-item label="刻度大小" prop="axisLabel.fontSize">
+            <el-form-item label="字体大小" prop="axisLabel.fontSize">
               <el-input v-model="xAxis.axisLabel.fontSize" style="width:80px"></el-input>
             </el-form-item>
             <el-form-item label="旋转" prop="axisLabel.rotate">
@@ -159,6 +159,9 @@
           </el-form>
 
         <el-form :inline="true" :model="legend" v-show="currentTool==='legend'">
+          <el-form-item label="图例字号" >
+            <el-switch v-model="legend.show"></el-switch>
+          </el-form-item>
           <el-form-item label="图例字号" prop="textStyle.fontSize">
             <el-input-number v-model="legend.textStyle.fontSize"></el-input-number>
           </el-form-item>
@@ -177,10 +180,35 @@
           </el-form-item>
         </el-form>
 
-        <el-form :inline="true" :model="legend" v-show="currentTool==='label'">
-          
+        <el-form :inline="true" :model="label" v-show="currentTool==='label'">
           <el-form-item>
-            <el-button @click="changeLegend">应用</el-button>
+            <el-switch v-model="label.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          </el-form-item>
+          <el-form-item label="位置" v-show="!showPieLabel">
+            <el-select v-model="label.position">
+              <el-option 
+              v-for="item in labelPosList" 
+              :key="item" 
+              :label="item" 
+              :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="位置" v-show="showPieLabel">
+            <el-select v-model="label.position">
+              <el-option 
+              v-for="item in pieLabelPosList"
+              :key="item" 
+              :label="item" 
+              :value="item">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="字号">
+            <el-input-number v-model="label.fontSize"></el-input-number>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="changeLabel">应用</el-button>
           </el-form-item>
         </el-form>
 
@@ -189,6 +217,7 @@
             <el-switch v-model="colorConfig.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </el-form-item>
         </el-form>
+
 
     </div>
     <div style="position: relative;">
@@ -250,7 +279,7 @@
   import { merge } from "merge-anything";
   import { YmsCharts } from "../common/utils/chart"
   import  * as html2canvas from "html2canvas"
-
+  import {readChartConfig} from "../common/config"
   const saveFile = function(data, filename){
                 var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
                 save_link.href = data;
@@ -349,7 +378,6 @@ let closeRightIndex = 0
 
       },
       setDistanceX(target, newVal1, newVal2){
-        console.log(last.id, target.id)
         if(last.id===target){
           if(last.rh){
           distanceX.delete(last.rh)
@@ -424,6 +452,31 @@ let closeRightIndex = 0
 
         },
       },
+
+      showXAxis:{
+        get(){
+          return this.currentTool==='XAxis' &&(
+            this.currentChartType === 'line' ||
+            this.currentChartType === 'bar' ||
+            this.currentChartType === "heat"
+          )
+        },
+        set(){
+
+        }
+      },
+      showYAxis:{
+        get(){
+          return this.currentTool==='YAxis' &&(
+            this.currentChartType === 'line' ||
+            this.currentChartType === 'bar' ||
+            this.currentChartType === "heat"
+          )
+        },
+        set(){
+
+        }
+      },
       showGrid:{
         get(){
           return this.currentTool === 'grid' && (
@@ -443,6 +496,13 @@ let closeRightIndex = 0
           )
         },
         set(){}
+      },
+      showPieLabel:{
+        get(){
+          return this.currentTool === 'label' &&(
+            this.currentChartType === "pie" 
+          )
+        }
       }
     },
     data() {
@@ -487,7 +547,10 @@ let closeRightIndex = 0
         l: "",
         t: "",
         iconList:['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'],
+        labelPosList:["top","left","right","bottom","inside","insideLeft","insideRight","insideTop","insideBottom","insideTopLeft","insideBottomLeft","insideTopRight","insideBottomRight"],
+        pieLabelPosList:["inside", "outside", "center"],
         legend:{
+          show:true,
           textStyle:{
             fontSize:12
           },
@@ -497,7 +560,7 @@ let closeRightIndex = 0
           bottom:0
         },
         title:{
-          text:"在Vue中使用Eharts",
+          text:"fdsafsdaf",
           textStyle:{
             color:'#333',
             fontStyle:"normal",
@@ -538,6 +601,12 @@ let closeRightIndex = 0
           name:"",
           show:true,
           axisLabel: {fontSize:15, rotate:0}
+        },
+        label:{
+          show:true,
+          position:"top",
+          // formatter:"{c}",
+          fontSize:12,
         }
       }
     },
@@ -606,7 +675,7 @@ let closeRightIndex = 0
             prev.push({position:cur,options:map[cur.id].options})
             return prev
           },[])
-          console.log(JSON.stringify(config))
+
           return
         }
       },
@@ -626,6 +695,7 @@ let closeRightIndex = 0
         map[activeDom.id].setOption({legend:this.legend})
       },
       changeTitle(e) {
+
         map[activeDom.id].setOption({title:this.title})
       },
       changeYAxis(e){
@@ -660,6 +730,9 @@ let closeRightIndex = 0
         }
 
       },
+      changeLabel(){
+        map[activeDom.id].setOption({label:this.label});
+      },
       tool(e) {
         map[activeDom.id].setOption()
       },
@@ -669,12 +742,35 @@ let closeRightIndex = 0
           this.currentChartType = chartType
         }
       },
+
+      readlabelConfig(){
+        return {
+          sunburst(config){
+            return config.series.label
+          },
+          default(config){
+            return config.series[0].label
+          }
+        }
+      },
       readSingleConfig(){
         const opts = map[activeDom.id].options
-        const arr = ["title","tooltip"] //,"xAxis","yAxis"
-        arr.forEach(item => {
-          this[item] = merge(JSON.parse(JSON.stringify(this[item])), 
-          JSON.parse(JSON.stringify(opts[item])))
+        const type = map[activeDom.id].type
+        const arr = ["title","tooltip","legend","label","grid","xAxis","yAxis"]
+        const commonConfig = ["title", "xAxis"]
+        commonConfig.forEach(item=>{
+          const newSingleConfig = readChartConfig[item](type,opts)
+          if(!newSingleConfig) return
+          
+          if(item==="xAxis"){
+            const config = merge(this[item].axisLabel, newSingleConfig)
+
+            this.$set(this[item], "axisLabel" , JSON.parse(JSON.stringify(config)))
+          }else{
+            const config = merge(this[item], newSingleConfig)
+            this.$set(this, item , JSON.parse(JSON.stringify(config)))
+          }
+
         })
       },
       control(e){
@@ -759,7 +855,7 @@ let closeRightIndex = 0
           const cl = parseInt(item.l)
           const cr = cl + parseInt(item.w)
           const ct = parseInt(item.t)
-          console.log(l-cr,l-cl)
+
         }
 
 

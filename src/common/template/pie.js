@@ -36,26 +36,23 @@ export const DefalutPieOpts = {
     text: "在Vue中使用echarts",
     left: "center",
     textStyle: {
-      color: "black",
+      color: "#333",
+      fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 30,
+      fontSize: 25,
     },
   },
-  legnd: {
+  legend: {
+    textStyle: {
+      fontSize: 12,
+    },
     show: true,
-    bottom: 20,
     icon: "roundRect",
     itemWidth: 25,
     itemHeight: 14,
     bottom: 0,
   },
   tooltip: {},
-  grid: {
-    top: "15%",
-    left: "8%",
-    right: "4%",
-    bottom: "15%",
-  },
   series: [
     {
       type: "pie",

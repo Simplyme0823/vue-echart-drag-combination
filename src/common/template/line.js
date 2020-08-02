@@ -13,6 +13,9 @@ const seriesLineY = LineY.map(item => {
     type: "line",
     yAxisIndex: 0,
     datasetIndex: 0,
+    label: {
+      show: true,
+    },
     name: item,
     encode: {
       y: item,
@@ -26,12 +29,22 @@ export const DefalutLineOpts = {
     text: "在Vue中使用echarts",
     left: "center",
     textStyle: {
-      color: "black",
+      color: "#333",
+      fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 30,
+      fontSize: 25,
     },
   },
-  legend: { show: true, data: LineY, bottom: 0 },
+  legend: {
+    textStyle: {
+      fontSize: 12,
+    },
+    show: true,
+    icon: "roundRect",
+    itemWidth: 25,
+    itemHeight: 14,
+    bottom: 0,
+  },
   grid: {
     top: "15%",
     left: "8%",
@@ -39,7 +52,11 @@ export const DefalutLineOpts = {
     bottom: "15%",
   },
   tooltip: {},
-  xAxis: { type: "category" },
+  xAxis: {
+    type: "category",
+    axisTick: { inside: true },
+    axisLabel: { fontSize: 15, rotate: 0 },
+  },
   yAxis: [{ min: 0 }],
   dataset: [
     {

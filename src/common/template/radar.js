@@ -5,16 +5,18 @@ export const DefaultRadarOpts = {
     text: "在Vue中使用echarts",
     left: "center",
     textStyle: {
-      color: "black",
+      color: "#333",
+      fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 30,
+      fontSize: 25,
     },
   },
   tooltip: {},
   legend: {
-    data: ["预算分配", "实际开销"],
+    textStyle: {
+      fontSize: 12,
+    },
     show: true,
-    bottom: 20,
     icon: "roundRect",
     itemWidth: 25,
     itemHeight: 14,

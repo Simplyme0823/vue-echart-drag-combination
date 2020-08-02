@@ -13,6 +13,9 @@ const seriesBarY = BarY.map(item => {
     type: "bar",
     yAxisIndex: 0,
     datasetIndex: 0,
+    label: {
+      show: true,
+    },
     name: item,
     encode: {
       y: item,
@@ -26,12 +29,16 @@ export const DefaultBarOpts = {
     text: "在Vue中使用echarts",
     left: "center",
     textStyle: {
-      color: "black",
+      color: "#333",
+      fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 30,
+      fontSize: 25,
     },
   },
   legend: {
+    textStyle: {
+      fontSize: 12,
+    },
     show: true,
     icon: "roundRect",
     itemWidth: 25,
@@ -48,7 +55,7 @@ export const DefaultBarOpts = {
   xAxis: {
     type: "category",
     axisTick: { inside: true },
-    axisLabel: { fontSize: 15 },
+    axisLabel: { fontSize: 15, rotate: 0 },
   },
   yAxis: {
     min: 0,

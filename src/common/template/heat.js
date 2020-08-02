@@ -216,12 +216,16 @@ export const DefaultHeatOpts = {
     text: "在Vue中使用echarts",
     left: "center",
     textStyle: {
-      color: "black",
+      color: "#333",
+      fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 30,
+      fontSize: 25,
     },
   },
   legend: {
+    textStyle: {
+      fontSize: 12,
+    },
     show: true,
     icon: "roundRect",
     itemWidth: 25,
@@ -242,6 +246,8 @@ export const DefaultHeatOpts = {
     splitArea: {
       show: true,
     },
+    axisTick: { inside: true },
+    axisLabel: { fontSize: 15, rotate: 0 },
   },
   yAxis: {
     type: "category",
@@ -249,6 +255,8 @@ export const DefaultHeatOpts = {
     splitArea: {
       show: true,
     },
+    axisTick: { inside: true },
+    axisLabel: { fontSize: 15 },
   },
   visualMap: {
     min: 0,
@@ -265,6 +273,7 @@ export const DefaultHeatOpts = {
       data: data,
       label: {
         show: true,
+        position: "inside",
       },
       emphasis: {
         itemStyle: {

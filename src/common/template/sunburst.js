@@ -69,12 +69,23 @@ export const DefaultSunburstOpts = {
     text: "在Vue中使用echarts",
     left: "center",
     textStyle: {
-      color: "black",
+      color: "#333",
+      fontStyle: "normal",
       fontWeight: "normal",
-      fontSize: 30,
+      fontSize: 25,
     },
   },
   tooltip: {},
+  legend: {
+    textStyle: {
+      fontSize: 12,
+    },
+    show: true,
+    icon: "roundRect",
+    itemWidth: 25,
+    itemHeight: 14,
+    bottom: 0,
+  },
   series: {
     type: "sunburst",
     highlightPolicy: "ancestor",

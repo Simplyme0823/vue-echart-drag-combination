@@ -20,6 +20,15 @@ import { DefaultHeatOpts } from "../../common/template/heat";
 import { DefaultRadarOpts } from "../../common/template/radar";
 import { DefaultSunburstOpts } from "../../common/template/sunburst";
 
+import { getColorConfig } from "../config/getColorConfig";
+import { getDataConfig } from "../config/getDataConfig";
+import { getGridConfig } from "../config/getGridConfig";
+import { getLabelConfig } from "../config/getLabelConfig";
+import { getLegendConfig } from "../config/getLegendConfig";
+import { getTitleConfig } from "../config/getTitleConfig";
+import { getXAxisConfig } from "../config/getXAxisConfig";
+import { getYAxisConfig } from "../config/getYAxisConfig";
+
 const strategies = {
   bar: DefaultBarOpts,
   line: DefalutLineOpts,
@@ -33,6 +42,7 @@ export class YmsCharts {
   constructor(type) {
     this.ins = null;
     this.options = strategies[type];
+    this.type = type;
   }
   chart(el, options = {}) {
     this.ins = echarts.init(el);
@@ -53,7 +63,25 @@ export class YmsCharts {
 
   setOption(options) {
     //合并配置
-    this.mergeOpts(options);
+    if (Object.keys(options)[0] === "label") {
+      if (this.type === "line" || this.type === "bar") {
+        const length = this.options.dataset[0].source.length;
+        for (let i = 0; i < length; i++) {
+          this.options.series[i].label = options.label;
+        }
+      } else if (this.type === "sunburst") {
+        console.log(this.options.series.label);
+        this.options.series.label = merge(
+          this.options.series.label,
+          options.label,
+        );
+      } else {
+        this.options.series[0].label = options.label;
+      }
+    } else {
+      this.mergeOpts(options);
+    }
+    console.log(this.options)
     this.ins.setOption(this.options);
   }
 }
