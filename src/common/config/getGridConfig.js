@@ -9,7 +9,7 @@ const gridStras = {
     };
   },
   sunburst(options) {
-    const { radius, center } = options.radar;
+    const { radius, center } = options.series;
     return {
       radius,
       center,

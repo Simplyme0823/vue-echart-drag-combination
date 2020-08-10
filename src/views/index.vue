@@ -114,13 +114,13 @@
             <el-form-item label="间距" prop="interval">
               <el-input-number v-model="yAxis.interval" :step="1"  :min="0" :max="50"></el-input-number>
             </el-form-item>
-            <el-form-item label="轴名称" prop="name">
+            <el-form-item label="Y轴名称" prop="name">
               <el-input v-model="yAxis.name"></el-input>
             </el-form-item>
-            <el-form-item label="字号" prop="nameTextStyle.fontSize">
+            <el-form-item label="Y轴名称字号" prop="nameTextStyle.fontSize">
               <el-input v-model="yAxis.nameTextStyle.fontSize" style="width:80px"></el-input>
             </el-form-item>
-            <el-form-item label="粗细" prop="nameTextStyle.fontWeight">
+            <el-form-item label="Y轴名称粗细" prop="nameTextStyle.fontWeight">
               <el-select v-model="yAxis.nameTextStyle.fontWeight" style="width:120px">
                 <el-option label="normal" value="normal">
                 </el-option>
@@ -132,10 +132,10 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="字体大小" prop="axisLabel.fontSize">
+            <el-form-item label="Y轴刻度字号" prop="axisLabel.fontSize">
                 <el-input v-model="yAxis.axisLabel.fontSize" style="width:80px"></el-input>
             </el-form-item>
-            <el-form-item label="位置" prop="nameGap">
+            <el-form-item label="Y轴刻度位置" prop="nameGap">
               <el-input v-model="yAxis.nameGap" style="width:80px"></el-input>
             </el-form-item>
             <el-form-item>
@@ -279,7 +279,10 @@
   import { merge } from "merge-anything";
   import { YmsCharts } from "../common/utils/chart"
   import  * as html2canvas from "html2canvas"
-  import {readChartConfig} from "../common/config"
+  import { readChartConfig } from "../common/config"
+  import { NoXAxis, NoYAxis, NoLegend, ordinaryGrid, specialGrid } from "../common/const"
+
+
   const saveFile = function(data, filename){
                 var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
                 save_link.href = data;
@@ -288,9 +291,10 @@
                 event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
                 save_link.dispatchEvent(event);
             };
+
   // 保存作图实例
   const map ={}
-
+  
   let activeDom;
   let activeAdd = false
   let appendNewDiv = false
@@ -570,10 +574,10 @@ let closeRightIndex = 0
           left:"center"
         },
         gridNum:{
-          left:'10%',
-          top:60,
-          right:"10%",
-          bottom:60
+          left:0,
+          top:0,
+          right:0,
+          bottom:0
         },
         pieGridNum:{
           top:0,
@@ -587,7 +591,6 @@ let closeRightIndex = 0
           interval:null,
           nameLocation:"middle",
           name:"",
-          show:true,
           nameTextStyle:{
             fontSize:16,
             fontWeight:"normal"
@@ -753,26 +756,69 @@ let closeRightIndex = 0
           }
         }
       },
+
+      itemConfig(){
+        const self = this
+        return {
+          title(type,config){
+            const finalConfig = merge(self["title"], config)
+            self.$set(self, "title" , JSON.parse(JSON.stringify(finalConfig)))
+          },
+          xAxis(type,config){
+            if(NoXAxis.indexOf(type)>-1) return
+            const finalConfig = merge(self["xAxis"].axisLabel, config)
+            self.$set(self["xAxis"], "axisLabel" , JSON.parse(JSON.stringify(finalConfig)))
+          },
+          yAxis(type,config){
+            if(NoYAxis.indexOf(type)>-1) return
+            const finalConfig = merge(self["yAxis"].axisLabel, config)
+            self.$set(self, "yAxis" , JSON.parse(JSON.stringify(finalConfig)))
+          },
+          tooltip(type,config){
+
+          },
+          legend(type,config){
+            if(NoLegend.indexOf(type)>-1) return
+            const finalConfig = merge(this["legend"], config)
+            self.$set(self, "legend" , JSON.parse(JSON.stringify(finalConfig)))
+          },
+          label(type,config){
+          },
+          grid(type,config){
+            if(specialGrid.indexOf(type)>-1){
+              const [left, top] = config.center
+              self.pieGridNum.top = parseInt(top)
+              self.pieGridNum.left = parseInt(left)
+              if(type==="radar"){
+                self.pieGridNum.radiusEnd = parseInt(config.radius)
+              }else{
+                const [radiusStart, radiusEnd] = config.radius
+                self.pieGridNum.radiusStart = parseInt(radiusStart)
+                self.pieGridNum.radiusEnd = parseInt(radiusEnd)
+              }
+            }else if(ordinaryGrid.indexOf(type)>-1){
+            const {top, bottom, left, right} = config
+            self.gridNum.top = parseInt(top)
+            self.gridNum.bottom = parseInt(bottom)
+            self.gridNum.left = parseInt(left)
+            self.gridNum.right = parseInt(right)
+            }
+          }
+        }
+      },
+
       readSingleConfig(){
-        const opts = map[activeDom.id].options
-        const type = map[activeDom.id].type
-        const arr = ["title","tooltip","legend","label","grid","xAxis","yAxis"]
-        const commonConfig = ["title", "xAxis"]
+        const {options:opts, type} = map[activeDom.id]
+        this.currentChartType = type
+        const commonConfig = ["title","tooltip","legend","label","grid","xAxis","yAxis"]
+
         commonConfig.forEach(item=>{
           const newSingleConfig = readChartConfig[item](type,opts)
           if(!newSingleConfig) return
-          
-          if(item==="xAxis"){
-            const config = merge(this[item].axisLabel, newSingleConfig)
-
-            this.$set(this[item], "axisLabel" , JSON.parse(JSON.stringify(config)))
-          }else{
-            const config = merge(this[item], newSingleConfig)
-            this.$set(this, item , JSON.parse(JSON.stringify(config)))
-          }
-
+          this.itemConfig()[item](type, newSingleConfig)
         })
       },
+
       control(e){
         if(e.target === e.currentTarget){
           this.isActive = true
@@ -903,6 +949,7 @@ let closeRightIndex = 0
         this.readSingleConfig()
         this.cover(e)
         compareArr = this.charts.filter(item => item.id !== activeDom.id)
+        
       },
       cover(e){
         const { h, l, w, t } = this.charts.find(

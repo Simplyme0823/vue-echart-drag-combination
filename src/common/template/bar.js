@@ -1,5 +1,6 @@
 /** @format */
 
+import { calMax } from "../utils/tool";
 const localMockBarData = [
   { year: 2015, raido: 0.5, test: 6 },
   { year: 2016, raido: 0.6, test: 8 },
@@ -23,7 +24,7 @@ const seriesBarY = BarY.map(item => {
     },
   };
 });
-
+const { max, interval } = calMax(localMockBarData);
 export const DefaultBarOpts = {
   title: {
     text: "在Vue中使用echarts",
@@ -58,7 +59,16 @@ export const DefaultBarOpts = {
     axisLabel: { fontSize: 15, rotate: 0 },
   },
   yAxis: {
+    max: max,
     min: 0,
+    interval: interval,
+    name: "test",
+    nameLocation: "middle",
+    nameTextStyle: {
+      fontSize: 16,
+      fontWeight: "normal",
+    },
+    nameGap: 20,
     axisTick: { inside: true },
     axisLabel: { fontSize: 15 },
   },
