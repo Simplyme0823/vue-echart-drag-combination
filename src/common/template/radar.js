@@ -59,6 +59,11 @@ export const DefaultRadarOpts = {
           name: "实际开销",
         },
       ],
+      label: {
+        show: false,
+        position: "top",
+        fontSize: 12,
+      },
     },
   ],
 };

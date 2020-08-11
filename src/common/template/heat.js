@@ -255,6 +255,13 @@ export const DefaultHeatOpts = {
     splitArea: {
       show: true,
     },
+    name: "dasf",
+    nameLocation: "middle",
+    nameTextStyle: {
+      fontSize: 16,
+      fontWeight: "normal",
+    },
+    nameGap: 20,
     axisTick: { inside: true },
     axisLabel: { fontSize: 15 },
   },
@@ -274,6 +281,7 @@ export const DefaultHeatOpts = {
       label: {
         show: true,
         position: "inside",
+        fontSize: 12,
       },
       emphasis: {
         itemStyle: {

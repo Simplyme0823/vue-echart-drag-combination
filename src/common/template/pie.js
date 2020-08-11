@@ -62,7 +62,9 @@ export const DefalutPieOpts = {
       data: localMockPieData,
       label: {
         position: "outer",
-        bleedMargin: 5,
+        // bleedMargin: 5,
+        show: true,
+        fontSize: 12,
       },
     },
   ],

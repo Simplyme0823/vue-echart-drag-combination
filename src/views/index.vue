@@ -102,20 +102,23 @@
 
 
           <el-form :inline="true" :model="yAxis" v-show="showYAxis">
-            <el-form-item label="显示" prop="show">
+            <el-form-item label="显示" prop="show" v-show="isHeat">
               <el-switch v-model="yAxis.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
             </el-form-item>
-            <el-form-item label="最大值" prop="max">
+            <el-form-item label="最大值" prop="max" v-show="isHeat">
               <el-input-number v-model="yAxis.max" :step="1"  :min="0" :max="50"></el-input-number>
             </el-form-item>
-            <el-form-item label="最小值" prop="min">
+            <el-form-item label="最小值" prop="min" v-show="isHeat">
               <el-input-number v-model="yAxis.min" :step="1"  :min="0" :max="50"></el-input-number>
             </el-form-item>
-            <el-form-item label="间距" prop="interval">
+            <el-form-item label="间距" prop="interval" v-show="isHeat">
               <el-input-number v-model="yAxis.interval" :step="1"  :min="0" :max="50"></el-input-number>
             </el-form-item>
             <el-form-item label="Y轴名称" prop="name">
               <el-input v-model="yAxis.name"></el-input>
+            </el-form-item>
+            <el-form-item label="Y轴名称位置" prop="nameGap">
+              <el-input v-model="yAxis.nameGap" style="width:80px"></el-input>
             </el-form-item>
             <el-form-item label="Y轴名称字号" prop="nameTextStyle.fontSize">
               <el-input v-model="yAxis.nameTextStyle.fontSize" style="width:80px"></el-input>
@@ -135,9 +138,7 @@
             <el-form-item label="Y轴刻度字号" prop="axisLabel.fontSize">
                 <el-input v-model="yAxis.axisLabel.fontSize" style="width:80px"></el-input>
             </el-form-item>
-            <el-form-item label="Y轴刻度位置" prop="nameGap">
-              <el-input v-model="yAxis.nameGap" style="width:80px"></el-input>
-            </el-form-item>
+
             <el-form-item>
               <el-button @click="changeYAxis">应用</el-button>
             </el-form-item>
@@ -425,6 +426,9 @@ let closeRightIndex = 0
   export default {
     name: "echarts",
     computed:{
+      isHeat(){
+        return this.currentChartType !== "heat"
+      },
       grid:{
         get(){
           return {
@@ -596,7 +600,7 @@ let closeRightIndex = 0
             fontWeight:"normal"
           },
           nameGap:20,
-          axisLabel: {fontSize: 15},
+          axisLabel: { fontSize: 15 },
           axisTick: {inside: true}
         },
         tooltip:{},
@@ -702,6 +706,7 @@ let closeRightIndex = 0
         map[activeDom.id].setOption({title:this.title})
       },
       changeYAxis(e){
+        console.log(this.yAxis)
         map[activeDom.id].setOption({yAxis:this.yAxis})
       },
       changeXAxis(e){
@@ -771,19 +776,32 @@ let closeRightIndex = 0
           },
           yAxis(type,config){
             if(NoYAxis.indexOf(type)>-1) return
-            const finalConfig = merge(self["yAxis"].axisLabel, config)
-            self.$set(self, "yAxis" , JSON.parse(JSON.stringify(finalConfig)))
+            if(type==="heat"){
+              const {name,nameGap,axisLabel,axisTick,nameTextStyle} = config
+              self.yAxis.name = name
+              self.yAxis.nameGap = nameGap
+              self.yAxis.nameTextStyle = {...nameTextStyle}
+              self.yAxis.axisLabel = {...axisLabel}
+              self.yAxis.axisTick = {...axisTick}
+              return
+            }
+            self.yAxis = {...config}
           },
           tooltip(type,config){
 
           },
+
           legend(type,config){
             if(NoLegend.indexOf(type)>-1) return
             const finalConfig = merge(this["legend"], config)
             self.$set(self, "legend" , JSON.parse(JSON.stringify(finalConfig)))
           },
+
           label(type,config){
+            const {position, show, fontSize} = config
+            self.label = {position,show, fontSize}
           },
+          
           grid(type,config){
             if(specialGrid.indexOf(type)>-1){
               const [left, top] = config.center
@@ -811,7 +829,6 @@ let closeRightIndex = 0
         const {options:opts, type} = map[activeDom.id]
         this.currentChartType = type
         const commonConfig = ["title","tooltip","legend","label","grid","xAxis","yAxis"]
-
         commonConfig.forEach(item=>{
           const newSingleConfig = readChartConfig[item](type,opts)
           if(!newSingleConfig) return

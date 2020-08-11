@@ -15,6 +15,8 @@ const seriesLineY = LineY.map(item => {
     datasetIndex: 0,
     label: {
       show: true,
+      position: "top",
+      fontSize: 12,
     },
     name: item,
     encode: {

@@ -95,6 +95,9 @@ export const DefaultSunburstOpts = {
     label: {
       rotate: "radial",
       minAngle: 10,
+      position: "inside",
+      show: true,
+      fontSize: 12,
     },
   },
 };
