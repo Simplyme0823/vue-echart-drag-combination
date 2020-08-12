@@ -76,16 +76,6 @@ export const DefaultSunburstOpts = {
     },
   },
   tooltip: {},
-  legend: {
-    textStyle: {
-      fontSize: 12,
-    },
-    show: true,
-    icon: "roundRect",
-    itemWidth: 25,
-    itemHeight: 14,
-    bottom: 0,
-  },
   series: {
     type: "sunburst",
     highlightPolicy: "ancestor",

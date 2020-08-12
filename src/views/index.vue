@@ -17,7 +17,9 @@
       <img class="tool" id="download" src="../assets/download.svg" draggable="false" alt="download" />
       <img class="tool" id="save" src="../assets/save.svg" draggable="false" alt="save" />
     </div>
-    <div class="chart-title" >
+    <div class="chart-title">
+      <div style="display:flex;min-width:1980px;">
+        <div class="placeholder" ></div>
       <el-form :inline="true" v-show="currentTool==='size'">
         <el-form-item label="图形高度">
           <el-input-number v-model="h"></el-input-number>
@@ -34,7 +36,7 @@
             <el-input v-model="title.text" style="width:400px"></el-input>
           </el-form-item>
           <el-form-item label="标题字号">
-            <el-input-number v-model="title.textStyle.fontSize" :step="2"  :min="min" :max="max"></el-input-number>
+            <el-input-number v-model="title.textStyle.fontSize" :step="2"  :min="min" :max="max" style="width: 140px;"></el-input-number>
           </el-form-item>
           <el-form-item label="标题字体粗细">
             <el-select v-model="title.textStyle.fontWeight"  style="width:120px">
@@ -106,25 +108,25 @@
               <el-switch v-model="yAxis.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
             </el-form-item>
             <el-form-item label="最大值" prop="max" v-show="isHeat">
-              <el-input-number v-model="yAxis.max" :step="1"  :min="0" :max="50"></el-input-number>
+              <el-input-number v-model="yAxis.max" :step="1"  :min="0"  style="width: 160px;"></el-input-number>
             </el-form-item>
             <el-form-item label="最小值" prop="min" v-show="isHeat">
-              <el-input-number v-model="yAxis.min" :step="1"  :min="0" :max="50"></el-input-number>
+              <el-input-number v-model="yAxis.min" :step="1"  :min="0"  style="width: 160px;"></el-input-number>
             </el-form-item>
-            <el-form-item label="间距" prop="interval" v-show="isHeat">
-              <el-input-number v-model="yAxis.interval" :step="1"  :min="0" :max="50"></el-input-number>
-            </el-form-item>
-            <el-form-item label="Y轴名称" prop="name">
+            <!-- <el-form-item label="间距" prop="interval" v-show="isHeat">
+              <el-input-number v-model="yAxis.interval" :step="1"  :min="0" :max="50" style="width: 160px;"></el-input-number>
+            </el-form-item> -->
+            <el-form-item label="轴名称" prop="name">
               <el-input v-model="yAxis.name"></el-input>
             </el-form-item>
-            <el-form-item label="Y轴名称位置" prop="nameGap">
-              <el-input v-model="yAxis.nameGap" style="width:80px"></el-input>
+            <el-form-item label="名称位置" prop="nameGap">
+              <el-input-number v-model="yAxis.nameGap" style="width: 140px;"></el-input-number>
             </el-form-item>
-            <el-form-item label="Y轴名称字号" prop="nameTextStyle.fontSize">
-              <el-input v-model="yAxis.nameTextStyle.fontSize" style="width:80px"></el-input>
+            <el-form-item label="名称字号" prop="nameTextStyle.fontSize">
+              <el-input-number v-model="yAxis.nameTextStyle.fontSize" style="width: 140px;"></el-input-number>
             </el-form-item>
-            <el-form-item label="Y轴名称粗细" prop="nameTextStyle.fontWeight">
-              <el-select v-model="yAxis.nameTextStyle.fontWeight" style="width:120px">
+            <el-form-item label="名称粗细" prop="nameTextStyle.fontWeight">
+              <el-select v-model="yAxis.nameTextStyle.fontWeight" style="width:90px">
                 <el-option label="normal" value="normal">
                 </el-option>
                 <el-option label="bold" value="bold">
@@ -135,8 +137,8 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="Y轴刻度字号" prop="axisLabel.fontSize">
-                <el-input v-model="yAxis.axisLabel.fontSize" style="width:80px"></el-input>
+            <el-form-item label="刻度字号" prop="axisLabel.fontSize">
+                <el-input-number v-model="yAxis.axisLabel.fontSize" style="width: 140px;"></el-input-number>
             </el-form-item>
 
             <el-form-item>
@@ -149,10 +151,10 @@
               <el-switch v-model="xAxis.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
             </el-form-item>
             <el-form-item label="字体大小" prop="axisLabel.fontSize">
-              <el-input v-model="xAxis.axisLabel.fontSize" style="width:80px"></el-input>
+              <el-input-number v-model="xAxis.axisLabel.fontSize" :step="1"  :min="0" :max="50" style="width: 140px;"></el-input-number>
             </el-form-item>
             <el-form-item label="旋转" prop="axisLabel.rotate">
-              <el-input-number v-model="xAxis.axisLabel.rotate"></el-input-number>
+              <el-input-number v-model="xAxis.axisLabel.rotate" style="width: 140px;"></el-input-number>
             </el-form-item>
             <el-form-item>
               <el-button @click="changeXAxis">应用</el-button>
@@ -163,8 +165,8 @@
           <el-form-item label="图例字号" >
             <el-switch v-model="legend.show"></el-switch>
           </el-form-item>
-          <el-form-item label="图例字号" prop="textStyle.fontSize">
-            <el-input-number v-model="legend.textStyle.fontSize"></el-input-number>
+          <el-form-item label="图例字号" prop="textStyle.fontSize" >
+            <el-input-number v-model="legend.textStyle.fontSize" style="width: 140px;"></el-input-number>
           </el-form-item>
           <el-form-item label="图例形状" prop="icon">
             <el-select v-model="legend.icon">
@@ -186,7 +188,7 @@
             <el-switch v-model="label.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </el-form-item>
           <el-form-item label="位置" v-show="!showPieLabel">
-            <el-select v-model="label.position">
+            <el-select v-model="label.position" style="width: 170px;">
               <el-option 
               v-for="item in labelPosList" 
               :key="item" 
@@ -196,7 +198,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="位置" v-show="showPieLabel">
-            <el-select v-model="label.position">
+            <el-select v-model="label.position" style="width: 140px;">
               <el-option 
               v-for="item in pieLabelPosList"
               :key="item" 
@@ -206,7 +208,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="字号">
-            <el-input-number v-model="label.fontSize"></el-input-number>
+            <el-input-number v-model="label.fontSize" style="width: 140px;"></el-input-number>
           </el-form-item>
           <el-form-item>
             <el-button @click="changeLabel">应用</el-button>
@@ -218,9 +220,9 @@
             <el-switch v-model="colorConfig.show" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </el-form-item>
         </el-form>
-
-
+</div>
     </div>
+
     <div style="position: relative;">
       <ul class="chart-menu" @mousedown="chooseType($event)" @mouseup="chooseChartType($event)">
         <li>
@@ -618,11 +620,6 @@ let closeRightIndex = 0
       }
     },
     mounted() {
-      this.charts.forEach(item=>{
-            const ins = new YmsCharts("bar")
-            map[item.id] = ins
-             ins.chart(this.$refs[item.id][0])
-          })
       document.addEventListener("keyup", e => {
         if (e.keyCode === 46) {
           if (activeDom) {
@@ -653,11 +650,6 @@ let closeRightIndex = 0
       this.readConfig()
     },
     methods: {
-      stop(e) {
-        if (e.target.className === 'work-erea') {
-          // activeAdd = false
-        }
-      },
       changeTool(e) {
         const old = this.currentTool
         this.currentTool = e.target.id
@@ -677,13 +669,10 @@ let closeRightIndex = 0
         }
         if(this.currentTool === "save"){
           this.currentTool = old
-
           const config = this.charts.reduce((prev,cur)=>{
-            prev.push({position:cur,options:map[cur.id].options})
+            prev.push({position:cur,options:map[cur.id].options,type:map[cur.id].type})
             return prev
           },[])
-
-          return
         }
       },
       manualResize(){
@@ -706,7 +695,18 @@ let closeRightIndex = 0
         map[activeDom.id].setOption({title:this.title})
       },
       changeYAxis(e){
-        console.log(this.yAxis)
+        if(this.currentChartType==="heat"){
+          const {name, nameGap, nameTextStyle, axisLabel, axisTick} = this.yAxis
+          const yAxis = {}
+          yAxis.name = name
+          yAxis.nameGap = nameGap
+          yAxis.nameTextStyle = {...nameTextStyle}
+          yAxis.axisLabel = {...axisLabel}
+          yAxis.axisTick = {...axisTick}
+
+          map[activeDom.id].setOption({yAxis})
+          return
+        }
         map[activeDom.id].setOption({yAxis:this.yAxis})
       },
       changeXAxis(e){
@@ -785,6 +785,7 @@ let closeRightIndex = 0
               self.yAxis.axisTick = {...axisTick}
               return
             }
+
             self.yAxis = {...config}
           },
           tooltip(type,config){
@@ -827,6 +828,7 @@ let closeRightIndex = 0
 
       readSingleConfig(){
         const {options:opts, type} = map[activeDom.id]
+
         this.currentChartType = type
         const commonConfig = ["title","tooltip","legend","label","grid","xAxis","yAxis"]
         commonConfig.forEach(item=>{
@@ -1065,20 +1067,23 @@ let closeRightIndex = 0
         this.charts[index].w = width
         this.charts[index].l = left
         this.charts[index].t = top
-        // 读取单个图片的配置
-          // this.readSingleConfig()
       },
       readConfig(){
-        const config = [{h: "439px",
-        id: "chart0.6122708683743796",
-        l: "205px",
-        t: "191px",
-        w: "524px"}]
-        this.charts = config
-        config.forEach(item=>{
-          distance.appendLoactionX(item.id, parseInt(item.l),parseInt(item.l)+parseInt(item.w))
+        const config = `[{"type":"bar","position":{"h":"439px","id":"chart0.6122708683743796","l":"151px","t":"180px","w":"524px"},"options":{"title":{"text":"在Vue中使用echarts","left":"center","textStyle":{"color":"#333","fontStyle":"normal","fontWeight":"normal","fontSize":25}},"legend":{"textStyle":{"fontSize":12},"show":true,"icon":"roundRect","itemWidth":25,"itemHeight":14,"bottom":0},"grid":{"top":"15%","left":"8%","right":"4%","bottom":"15%"},"tooltip":{},"xAxis":{"type":"category","axisTick":{"inside":true},"axisLabel":{"fontSize":15,"rotate":0}},"yAxis":{"max":12,"min":0,"interval":3,"name":"test","nameLocation":"middle","nameTextStyle":{"fontSize":16,"fontWeight":"normal"},"nameGap":20,"axisTick":{"inside":true},"axisLabel":{"fontSize":15}},"dataset":[{"source":[{"year":2015,"raido":0.5,"test":6},{"year":2016,"raido":0.6,"test":8}]}],"series":[{"type":"bar","yAxisIndex":0,"datasetIndex":0,"label":{"show":true,"position":"top","fontSize":12},"name":"raido","encode":{"y":"raido","x":"year"}},{"type":"bar","yAxisIndex":0,"datasetIndex":0,"label":{"show":true,"position":"top","fontSize":12},"name":"test","encode":{"y":"test","x":"year"}}]}}]`
+        const parseConfig = JSON.parse(config);
+
+        this.charts = parseConfig.map(item=>{
+          return item.position
         })
 
+        this.$nextTick(()=>{
+          parseConfig.forEach(item=>{
+          const{position,options,type} = item
+            const ins = new YmsCharts(type)
+            map[position.id] = ins
+            ins.chart(this.$refs[position.id][0],options)
+          })
+        })
       }
     }
   }
@@ -1106,7 +1111,9 @@ let closeRightIndex = 0
     position: absolute;
   }
 .chart-title{
-display: flex
+display: flex;
+overflow:auto;
+overflow-y: hidden;
 }
   .chart-menu {
     min-width: 150px;
@@ -1211,6 +1218,11 @@ display: flex
 .guide{
   position: absolute;
   z-index: -1;
+}
+
+.placeholder{
+  display: inline-block;
+  height: 62px;
 }
 </style>
 /* eslint-disable */

@@ -1,10 +1,10 @@
 /** @format */
-
+import { calMax } from "../utils/tool";
 const localMockLineData = [
   { year: 2015, mount: 11, test: 15 },
   { year: 2016, mount: 12, test: 16 },
 ];
-
+const { max, interval } = calMax(localMockLineData);
 const LineDims = Object.keys(localMockLineData[0]);
 const LineX = LineDims[0];
 const LineY = LineDims.slice(1);
@@ -59,7 +59,22 @@ export const DefalutLineOpts = {
     axisTick: { inside: true },
     axisLabel: { fontSize: 15, rotate: 0 },
   },
-  yAxis: [{ min: 0 }],
+  yAxis: [
+    {
+      max: max,
+      min: 0,
+      interval: interval,
+      name: "test",
+      nameLocation: "middle",
+      nameTextStyle: {
+        fontSize: 16,
+        fontWeight: "normal",
+      },
+      nameGap: 20,
+      axisTick: { inside: true },
+      axisLabel: { fontSize: 15 },
+    },
+  ],
   dataset: [
     {
       source: localMockLineData,
