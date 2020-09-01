@@ -1,0 +1,9 @@
+/** @format */
+
+$toolLegends: size, legend, label, color, title, XAxis, YAxis, grid, data,
+  download, save;
+@each $label in $toolLegends {
+  ##{$label} {
+    background: url("../assets/axis.svg");
+  }
+}

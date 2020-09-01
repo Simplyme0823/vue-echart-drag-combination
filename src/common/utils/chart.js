@@ -43,6 +43,7 @@ export class YmsCharts {
     this.ins = null;
     this.options = strategies[type];
     this.type = type;
+    this.SuperType="chart"
   }
   chart(el, options = {}) {
     this.ins = echarts.init(el);
@@ -81,7 +82,15 @@ export class YmsCharts {
     } else {
       this.mergeOpts(options);
     }
-    console.log(this.options)
+    console.log(this.options);
     this.ins.setOption(this.options);
+  }
+}
+
+export class YmsPanel {
+  constructor(type) {
+    this.type = type;
+    this.options = {};
+    this.SuperType = "panel";
   }
 }

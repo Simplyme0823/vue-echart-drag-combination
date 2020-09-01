@@ -14,6 +14,8 @@ export class YmsCharts {
   constructor(type) {
     this.ins = null;
     this.options = strategies[type];
+    this.type = type;
+    this.SuperType = "chart";
   }
   chart(el, options = {}) {
     this.ins = echarts.init(el);
